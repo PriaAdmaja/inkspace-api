@@ -5,7 +5,7 @@ import Credentials from "@auth/core/providers/credentials";
 import { prisma } from "./prisma.js";
 import { ContextWithPrisma } from "../types/app.js";
 
-export const authConfig = (env: ContextWithPrisma['Bindings']): AuthConfig => {
+export const authConfig = (env: ContextWithPrisma["Bindings"]): AuthConfig => {
   return {
     adapter: PrismaAdapter(prisma),
     secret: env?.AUTH_SECRET,

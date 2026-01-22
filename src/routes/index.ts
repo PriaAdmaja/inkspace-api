@@ -4,7 +4,6 @@ import privateRoutes from "./private/index.js";
 import { authConfig } from "../lib/auth.js";
 import { HttpError } from "../lib/http-error.js";
 import { ContentfulStatusCode } from "hono/utils/http-status";
-import { AuthError } from "@auth/core/errors";
 import { fail } from "../lib/response.js";
 import { HTTPException } from "hono/http-exception";
 
