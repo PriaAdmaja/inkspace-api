@@ -5,6 +5,7 @@ export type ContextWithPrisma = {
     prisma: PrismaClient;
   };
   Bindings: {
+    DATABASE_URL: string;
     AUTH_SECRET: string;
     GITHUB_ID: string;
     GITHUB_SECRET: string;
