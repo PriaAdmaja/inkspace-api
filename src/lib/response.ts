@@ -5,7 +5,7 @@ export type ApiResponse<T> = {
   success: boolean;
   message?: string;
   data?: T;
-  error?: string;
+  error?: unknown
 };
 
 export function ok<T>({
@@ -31,17 +31,20 @@ export function ok<T>({
 
 export function fail({
   c,
+  message,
   error,
   status = 400,
 }: {
   c: Context;
-  error: string;
+  message: string;
+  error?: unknown
   status?: ContentfulStatusCode;
 }) {
   return c.json<ApiResponse<null>>(
     {
       success: false,
-      error,
+      message,
+      error
     },
     status,
   );
