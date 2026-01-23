@@ -8,6 +8,7 @@ import { HTTPException } from "hono/http-exception";
 import z from "zod";
 import privateRoutes from "./private.route.js";
 import { ContextWithPrisma } from "../types/app.js";
+import publicRoutes from "./public.route.js";
 
 const routes = new Hono<ContextWithPrisma>();
 
@@ -19,6 +20,7 @@ routes
   .use("/auth/*", authHandler());
 
 routes.route("/api", privateRoutes);
+routes.route("/api", publicRoutes);
 
 routes.notFound((c) => {
   return fail({ c, message: "Route not found", status: 404 });
