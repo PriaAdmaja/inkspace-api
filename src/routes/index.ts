@@ -1,12 +1,12 @@
 import { authHandler, initAuthConfig } from "@hono/auth-js";
 import { Hono } from "hono";
-import privateRoutes from "./private/index.js";
 import { authConfig } from "../lib/auth.js";
 import { HttpError } from "../lib/http-error.js";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 import { fail } from "../lib/response.js";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
+import privateRoutes from "./private.route.js";
 
 const routes = new Hono();
 
