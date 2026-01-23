@@ -4,6 +4,25 @@ import { fail, ok } from "../../../lib/response.js";
 import { comparePassword, encryptPassword } from "../../../lib/hash.js";
 import * as meRepository from "./me.repository.js";
 
+export const register = async (c: Context<ContextWithPrisma>) => {
+  const body = await c.req.json();
+  const prisma = c.get("prisma");
+
+  const user = await meRepository.getMe(prisma, body.email);
+
+  if (user) {
+    return fail({
+      c,
+      message: "User already exists",
+      status: 409,
+    });
+  }
+
+  const newUser = await meRepository.register(prisma, body);
+
+  return ok({ c, data: newUser });
+};
+
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
   const authUser = c.get("authUser");
@@ -61,7 +80,7 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     return fail({
       c,
       message: "Current password is incorrect",
-      status: 400,
+      status: 401,
     });
   }
 

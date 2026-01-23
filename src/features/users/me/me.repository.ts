@@ -1,6 +1,27 @@
 import z from "zod";
 import { PrismaClient } from "../../../generated/prisma/client.js";
-import { updateMeSchema } from "./me.schema.js";
+import { registerSchema, updateMeSchema } from "./me.schema.js";
+
+export const register = async (prisma: PrismaClient, data: z.infer<typeof registerSchema>) => {
+  const user = await prisma.user.create({
+    data: {
+      email: data.email,
+      username: data.username,
+      password: data.password,
+    },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      avatar: true,
+      about: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return user;
+};
 
 export const getMe = async (prisma: PrismaClient, email: string) => {
   const user = await prisma.user.findUnique({

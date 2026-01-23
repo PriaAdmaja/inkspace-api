@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const registerSchema = z.object({
+    email: z.email(),
+    username: z.string(),
+    password: z.string()
+})
+
 export const updateMeSchema = z.object({
     username: z.string(),
     avatar: z.string().nullable(),
