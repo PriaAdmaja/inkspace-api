@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { ContextWithPrisma } from "../types/app.js";
 import { verifyAuth } from "@hono/auth-js";
 import { authChecker } from "../middleware/authChecker.js";
-import meRoutes from "../features/users/me/me.routes.js";
+import meRoutes from "../features/users/me/me.route.js";
 
 const privateRoutes = new Hono<ContextWithPrisma>();
 

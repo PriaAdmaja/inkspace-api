@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { ContextWithPrisma } from "../types/app.js";
-import postsRoutes from "../features/posts/posts.routes.js";
+import postsRoutes from "../features/posts/posts.route.js";
 
 const publicRoutes = new Hono<ContextWithPrisma>();
 
