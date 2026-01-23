@@ -3,17 +3,16 @@ import type { AuthConfig } from "@auth/core";
 import GitHub from "@auth/core/providers/github";
 import Credentials from "@auth/core/providers/credentials";
 import { prisma } from "../middleware/prisma.js";
-import { ContextWithPrisma } from "../types/app.js";
 import { comparePassword } from "./hash.js";
 
-export const authConfig = (env: ContextWithPrisma["Bindings"]): AuthConfig => {
+export const authConfig = (): AuthConfig => {
   return {
     adapter: PrismaAdapter(prisma),
-    secret: env?.AUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
     providers: [
       GitHub({
-        clientId: env?.GITHUB_ID,
-        clientSecret: env?.GITHUB_SECRET,
+        clientId: process.env.GITHUB_ID,
+        clientSecret: process.env.GITHUB_SECRET,
       }),
       Credentials({
         name: "Credentials",

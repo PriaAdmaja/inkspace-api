@@ -7,13 +7,14 @@ import { fail } from "../lib/response.js";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
 import privateRoutes from "./private.route.js";
+import { ContextWithPrisma } from "../types/app.js";
 
-const routes = new Hono();
+const routes = new Hono<ContextWithPrisma>();
 
 routes
   .use(
     "*",
-    initAuthConfig((c) => authConfig(c.env)),
+    initAuthConfig(authConfig),
   )
   .use("/auth/*", authHandler());
 
