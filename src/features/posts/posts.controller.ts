@@ -13,7 +13,21 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const take = limitInt;
   const skip = (pageInt - 1) * take;
 
-  const posts = await postsRepository.getAllPosts(prisma, { take, skip });
+  const { posts, total } = await postsRepository.getAllPosts(prisma, {
+    take,
+    skip,
+  });
 
-  return ok({ c, data: posts });
+  const lastPage = Math.ceil(total / limitInt);
+
+  return ok({
+    c,
+    data: posts,
+    meta: {
+      current_page: pageInt,
+      last_page: lastPage,
+      limit: limitInt,
+      total,
+    },
+  });
 };
