@@ -3,9 +3,11 @@ import { ContextWithPrisma } from "../../../types/app.js";
 import { fail, ok } from "../../../lib/response.js";
 import { comparePassword, encryptPassword } from "../../../lib/hash.js";
 import * as meRepository from "./me.repository.js";
+import z from "zod";
+import * as meSchema from "./me.schema.js";
 
 export const register = async (c: Context<ContextWithPrisma>) => {
-  const body = await c.req.json();
+  const body = await c.req.json<z.infer<typeof meSchema.registerSchema>>();
   const prisma = c.get("prisma");
 
   const user = await meRepository.getMe(prisma, body.email);
@@ -48,7 +50,7 @@ export const getMe = async (c: Context<ContextWithPrisma>) => {
 export const updateMe = async (c: Context<ContextWithPrisma>) => {
   const authUser = c.get("authUser");
 
-  const body = await c.req.json();
+  const body = await c.req.json<z.infer<typeof meSchema.updateMeSchema>>();
   const prisma = c.get("prisma");
   const email = authUser.session.user?.email || "";
 
@@ -60,7 +62,7 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
 export const updatePassword = async (c: Context<ContextWithPrisma>) => {
   const authUser = c.get("authUser");
 
-  const body = await c.req.json();
+  const body = await c.req.json<z.infer<typeof meSchema.updatePasswordSchema>>();
   const prisma = c.get("prisma");
   const email = authUser.session.user?.email || "";
 
