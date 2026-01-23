@@ -2,8 +2,9 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { AuthConfig } from "@auth/core";
 import GitHub from "@auth/core/providers/github";
 import Credentials from "@auth/core/providers/credentials";
-import { prisma } from "./prisma.js";
+import { prisma } from "../middleware/prisma.js";
 import { ContextWithPrisma } from "../types/app.js";
+import { comparePassword } from "./hash.js";
 
 export const authConfig = (env: ContextWithPrisma["Bindings"]): AuthConfig => {
   return {
@@ -29,12 +30,26 @@ export const authConfig = (env: ContextWithPrisma["Bindings"]): AuthConfig => {
               email: credentials.email,
             },
           });
+
           if (!user) {
             return null;
           }
-          if (user.password !== credentials.password) {
+
+          const inputtedPassword =
+            typeof credentials.password === "string"
+              ? credentials.password
+              : "";
+          const savedPassword =
+            typeof user.password === "string" ? user.password : "";
+          const isPasswordValid = comparePassword(
+            inputtedPassword,
+            savedPassword,
+          );
+
+          if (!isPasswordValid) {
             return null;
           }
+
           return user;
         },
       }),

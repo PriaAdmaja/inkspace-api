@@ -17,8 +17,17 @@ export const getMe = async (c: Context<ContextWithPrisma>) => {
     where: {
       email: loggedEmail,
     },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      avatar: true,
+      about: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
-  
+
   if (!user) {
     return fail({
       c,
@@ -31,25 +40,4 @@ export const getMe = async (c: Context<ContextWithPrisma>) => {
     c,
     data: { user },
   });
-};
-
-export const updateMe = async (c: Context<ContextWithPrisma>) => {
-  const authUser = c.get("authUser");
-
-  if (!authUser) {
-    throw new HttpError(401, "Unauthorized");
-  }
-
-  const body = await c.req.json();
-  const prisma = c.get("prisma");
-  const email = authUser.session.user?.email || "";
-
-  const updateMe = await prisma.user.update({
-    where: {
-      email,
-    },
-    data: body,
-  });
-
-  return ok({ c, data: updateMe });
 };

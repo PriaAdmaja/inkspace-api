@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "../src/generated/prisma/client.js";
+import { encryptPassword } from "../src/lib/hash.js";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -11,9 +12,9 @@ const prisma = new PrismaClient({
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    email: "admin@inkspace.id",
-    username: "admin",
-    password: "Rahasia123.",
+    email: "dummy@email.com",
+    username: "dummy user",
+    password: encryptPassword("Rahasia123."),
     avatar: null,
     about: null,
   },
