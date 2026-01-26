@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { ContextWithPrisma } from "../../../types/app.js";
-import { fail, ok } from "../../../lib/response.js";
-import { comparePassword, encryptPassword } from "../../../lib/hash.js";
+import { fail, ok } from "../../../libs/response.js";
+import { comparePassword, encryptPassword } from "../../../libs/hash.js";
 import * as meRepository from "./me.repository.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
@@ -62,7 +62,8 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
 export const updatePassword = async (c: Context<ContextWithPrisma>) => {
   const authUser = c.get("authUser");
 
-  const body = await c.req.json<z.infer<typeof meSchema.updatePasswordSchema>>();
+  const body =
+    await c.req.json<z.infer<typeof meSchema.updatePasswordSchema>>();
   const prisma = c.get("prisma");
   const email = authUser.session.user?.email || "";
 
@@ -76,9 +77,7 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  if (
-    !comparePassword(body.currentPassword, user.password)
-  ) {
+  if (!comparePassword(body.currentPassword, user.password)) {
     return fail({
       c,
       message: "Current password is incorrect",
@@ -86,8 +85,11 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const updatePassword = await meRepository.updatePassword(prisma, email, encryptPassword(body.newPassword));
+  const updatePassword = await meRepository.updatePassword(
+    prisma,
+    email,
+    encryptPassword(body.newPassword),
+  );
 
   return ok({ c, data: updatePassword });
 };
-

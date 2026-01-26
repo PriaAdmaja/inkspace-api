@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import * as postsRepository from "./posts.repository.js";
 import { ContextWithPrisma } from "../../types/app.js";
-import { ok } from "../../lib/response.js";
+import { ok } from "../../libs/response.js";
 
 export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");

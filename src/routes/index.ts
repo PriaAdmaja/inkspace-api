@@ -1,9 +1,9 @@
 import { authHandler, initAuthConfig } from "@hono/auth-js";
 import { Hono } from "hono";
-import { authConfig } from "../lib/auth.js";
-import { HttpError } from "../lib/http-error.js";
+import { authConfig } from "../libs/auth.js";
+import { HttpError } from "../libs/http-error.js";
 import { ContentfulStatusCode } from "hono/utils/http-status";
-import { fail } from "../lib/response.js";
+import { fail } from "../libs/response.js";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
 import privateRoutes from "./private.route.js";
@@ -12,12 +12,7 @@ import publicRoutes from "./public.route.js";
 
 const routes = new Hono<ContextWithPrisma>();
 
-routes
-  .use(
-    "*",
-    initAuthConfig(authConfig),
-  )
-  .use("/auth/*", authHandler());
+routes.use("*", initAuthConfig(authConfig)).use("/auth/*", authHandler());
 
 routes.route("/api", privateRoutes);
 routes.route("/api", publicRoutes);

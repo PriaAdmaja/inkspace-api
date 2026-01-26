@@ -2,7 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { AuthConfig } from "@auth/core";
 import GitHub from "@auth/core/providers/github";
 import Credentials from "@auth/core/providers/credentials";
-import { prisma } from "../middleware/prisma.js";
+import { prisma } from "../middlewares/prisma.js";
 import { comparePassword } from "./hash.js";
 
 export const authConfig = (): AuthConfig => {

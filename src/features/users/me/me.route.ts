@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import * as meController from "./me.controller.js";
 import { zValidator } from "@hono/zod-validator";
 import * as meSchema from "./me.schema.js";
-import { withPrisma } from "../../../middleware/prisma.js";
+import { withPrisma } from "../../../middlewares/prisma.js";
 
 const meRoutes = new Hono();
 

@@ -1,4 +1,4 @@
-import { withPrisma } from "../../middleware/prisma.js";
+import { withPrisma } from "../../middlewares/prisma.js";
 import * as postsController from "./posts.controller.js";
 import { Hono } from "hono";
 
