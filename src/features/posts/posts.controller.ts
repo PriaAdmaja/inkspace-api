@@ -1,7 +1,10 @@
-import { Context } from "hono";
 import * as postsRepository from "./posts.repository.js";
+import * as meRepository from "../../features/users/me/me.repository.js";
 import { ContextWithPrisma } from "../../types/app.js";
-import { ok } from "../../libs/response.js";
+import { fail, ok } from "../../libs/response.js";
+import z from "zod";
+import { postSchema } from "./posts.schema.js";
+import { Context } from "hono";
 
 export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -18,7 +21,7 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
     skip,
   });
 
-  const lastPage = Math.ceil(total / limitInt);
+  const lastPage = Math.ceil(total / limitInt) || pageInt;
 
   return ok({
     c,
@@ -30,4 +33,95 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
       total,
     },
   });
+};
+
+export const getPostById = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { id } = c.req.param();
+
+  if (!id) {
+    return fail({
+      c,
+      message: "Post ID is required",
+      status: 400,
+    });
+  }
+
+  const post = await postsRepository.getPostById(prisma, id);
+
+  if (!post) {
+    return fail({
+      c,
+      message: "Post not found",
+      status: 404,
+    });
+  }
+
+  return ok({ c, data: post });
+};
+
+export const createPost = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const user = c.get("authUser");
+  const email = user.session.user?.email;
+
+  if (!email) {
+    return fail({
+      c,
+      message: "User not found",
+      status: 401,
+    });
+  }
+
+  const userData = await meRepository.getMe(prisma, email);
+
+  if (!userData) {
+    return fail({
+      c,
+      message: "User not found",
+      status: 401,
+    });
+  }
+
+  const body = await c.req.json<z.infer<typeof postSchema>>();
+
+  const post = await postsRepository.createPost(prisma, {
+    title: body.title,
+    content: body.content,
+    authorId: userData.id,
+    tags: body.tags,
+  });
+
+  return ok({ c, data: post });
+};
+
+export const updatePost = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { id } = c.req.param();
+
+  if (!id) {
+    return fail({
+      c,
+      message: "Post ID is required",
+      status: 400,
+    });
+  }
+
+  const body = await c.req.json<z.infer<typeof postSchema>>();
+
+  const post = await postsRepository.updatePost(prisma, id, {
+    title: body.title,
+    content: body.content,
+    tags: body.tags,
+  });
+
+  if (!post) {
+    return fail({
+      c,
+      message: "Post not found",
+      status: 404,
+    });
+  }
+
+  return ok({ c, data: post });
 };

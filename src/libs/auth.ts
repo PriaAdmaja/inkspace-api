@@ -48,7 +48,6 @@ export const authConfig = (): AuthConfig => {
           if (!isPasswordValid) {
             return null;
           }
-
           return user;
         },
       }),

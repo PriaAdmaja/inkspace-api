@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import * as meController from "./me.controller.js";
-import { zValidator } from "@hono/zod-validator";
 import * as meSchema from "./me.schema.js";
 import { withPrisma } from "../../../middlewares/prisma.js";
+import { zValidator } from "../../../libs/validator.js";
 
 const meRoutes = new Hono();
 
@@ -10,19 +10,19 @@ meRoutes.get("/", withPrisma, meController.getMe);
 meRoutes.patch(
   "/",
   withPrisma,
-  zValidator("json", meSchema.updateMeSchema),
+  zValidator(meSchema.updateMeSchema),
   meController.updateMe,
 );
 meRoutes.post(
   "/register",
   withPrisma,
-  zValidator("json", meSchema.registerSchema),
+  zValidator(meSchema.registerSchema),
   meController.register,
 );
 meRoutes.patch(
   "/password",
   withPrisma,
-  zValidator("json", meSchema.updatePasswordSchema),
+  zValidator(meSchema.updatePasswordSchema),
   meController.updatePassword,
 );
 

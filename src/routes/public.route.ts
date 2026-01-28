@@ -4,6 +4,6 @@ import postsRoutes from "../features/posts/posts.route.js";
 
 const publicRoutes = new Hono<ContextWithPrisma>();
 
-publicRoutes.route("/posts", postsRoutes);
+publicRoutes.route("/posts", postsRoutes.postsPublicRoutes);
 
 export default publicRoutes;

@@ -36,7 +36,10 @@ routes.onError((err, c) => {
   }
 
   if (err instanceof z.ZodError) {
-    const errors = z.flattenError(err);
+    const errors = err.issues.map((issue) => ({
+      field: issue.path.join("."),
+      message: issue.message,
+    }));
     return fail({ c, message: "Validation error", error: errors, status: 400 });
   }
 
