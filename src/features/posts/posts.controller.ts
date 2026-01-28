@@ -21,11 +21,18 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
     skip,
   });
 
+  const adjustedPostData = posts.map((post) => {
+    return {
+      ...post,
+      tags: post.tags.map((tag) => tag.tag),
+    };
+  });
+
   const lastPage = Math.ceil(total / limitInt) || pageInt;
 
   return ok({
     c,
-    data: posts,
+    data: adjustedPostData,
     meta: {
       current_page: pageInt,
       last_page: lastPage,
@@ -57,7 +64,12 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  return ok({ c, data: post });
+  const adjustedPostData = {
+    ...post,
+    tags: post.tags.map((tag) => tag.tag),
+  };
+
+  return ok({ c, data: adjustedPostData });
 };
 
 export const createPost = async (c: Context<ContextWithPrisma>) => {
@@ -92,7 +104,20 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     tags: body.tags,
   });
 
-  return ok({ c, data: post });
+  if (!post) {
+    return fail({
+      c,
+      message: "Failed to create post",
+      status: 500,
+    });
+  }
+
+  const adjustedPostData = {
+    ...post,
+    tags: post.tags.map((tag) => tag.tag),
+  };
+
+  return ok({ c, data: adjustedPostData });
 };
 
 export const updatePost = async (c: Context<ContextWithPrisma>) => {
@@ -123,5 +148,10 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  return ok({ c, data: post });
+  const adjustedPostData = {
+    ...post,
+    tags: post.tags.map((tag) => tag.tag),
+  };
+
+  return ok({ c, data: adjustedPostData });
 };
