@@ -61,5 +61,6 @@ export const authConfig = (): AuthConfig => {
       },
     },
     trustHost: true,
+    basePath: "/api/auth",
   };
 };

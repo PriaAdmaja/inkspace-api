@@ -12,10 +12,10 @@ import publicRoutes from "./public.route.js";
 
 const routes = new Hono<ContextWithPrisma>();
 
-routes.use("*", initAuthConfig(authConfig)).use("/auth/*", authHandler());
+routes.use("*", initAuthConfig(authConfig)).use("/api/auth/*", authHandler());
 
-routes.route("/api", privateRoutes);
-routes.route("/api", publicRoutes);
+routes.route("/api/public", publicRoutes);
+routes.route("/api/private", privateRoutes);
 
 routes.notFound((c) => {
   return fail({ c, message: "Route not found", status: 404 });
