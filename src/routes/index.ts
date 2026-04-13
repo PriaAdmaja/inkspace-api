@@ -1,6 +1,4 @@
-import { authHandler, initAuthConfig } from "@hono/auth-js";
 import { Hono } from "hono";
-import { authConfig } from "../libs/auth.js";
 import { HttpError } from "../libs/http-error.js";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 import { fail } from "../libs/response.js";
@@ -11,9 +9,6 @@ import { ContextWithPrisma } from "../types/app.js";
 import publicRoutes from "./public.route.js";
 
 const routes = new Hono<ContextWithPrisma>();
-
-routes.use("*", initAuthConfig(authConfig)).use("/api/auth/*", authHandler());
-
 routes.route("/api/public", publicRoutes);
 routes.route("/api/private", privateRoutes);
 

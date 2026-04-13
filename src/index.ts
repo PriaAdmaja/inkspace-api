@@ -15,7 +15,7 @@ app.route("/", routes);
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: 3001,
   },
   (info) => {
     // eslint-disable-next-line no-console
