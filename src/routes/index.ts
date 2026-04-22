@@ -7,10 +7,12 @@ import z from "zod";
 import privateRoutes from "./private.route.js";
 import { ContextWithPrisma } from "../types/app.js";
 import publicRoutes from "./public.route.js";
+import authRoutes from "../features/auth/auth.route.js";
 
 const routes = new Hono<ContextWithPrisma>();
-routes.route("/api/public", publicRoutes);
-routes.route("/api/private", privateRoutes);
+routes.route("/public", publicRoutes);
+routes.route("/auth", authRoutes);
+routes.route("/", privateRoutes);
 
 routes.notFound((c) => {
   return fail({ c, message: "Route not found", status: 404 });

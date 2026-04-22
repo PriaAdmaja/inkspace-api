@@ -17,20 +17,30 @@ model User {
   about         String?
 
   posts    Post[]
-  accounts Account[]
+  refreshTokens  RefreshToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Account {
-  userId        String
-  refresh_token String?
-  expires_at    Int?
+model RefreshToken {
+  id          String   @id @default(cuid())
+  lookupId    String
+  token       String   @unique
+  userId      String
+  expiresAt   DateTime
+  revoked     Boolean  @default(false)
+  replacedBy  String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent   String?
+  ip          String?
 
-  @@id([userId])
+  createdAt   DateTime @default(now())
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Post {

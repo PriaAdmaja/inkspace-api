@@ -74,8 +74,7 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
 
 export const createPost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const user = c.get("authUser");
-  const email = user.session.user?.email;
+  const { email } = c.get("userData") || { email: undefined };
 
   if (!email) {
     return fail({

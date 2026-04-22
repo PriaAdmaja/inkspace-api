@@ -13,12 +13,6 @@ meRoutes.patch(
   zValidator(meSchema.updateMeSchema),
   meController.updateMe,
 );
-meRoutes.post(
-  "/register",
-  withPrisma,
-  zValidator(meSchema.registerSchema),
-  meController.register,
-);
 meRoutes.patch(
   "/password",
   withPrisma,

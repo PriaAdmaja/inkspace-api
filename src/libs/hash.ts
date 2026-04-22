@@ -1,13 +1,11 @@
 import bcrypt from "bcrypt";
 
-export const encryptPassword = (password: string) => {
-    return bcrypt.hashSync(password, 10);
-}
+export const hash = (string: string) => {
+  return bcrypt.hashSync(string, 10);
+};
 
-export const comparePassword = (password: string, hash: string) => {
-    return bcrypt.compareSync(password, hash);
-}
+export const compareHash = (string: string, hashedString: string) => {
+  return bcrypt.compare(string, hashedString);
+};
 
-export const decryptPassword = (hash: string) => {
-    return bcrypt.hashSync(hash, 10);
-}
+

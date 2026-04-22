@@ -23,10 +23,10 @@ export const register = async (prisma: PrismaClient, data: z.infer<typeof regist
   return user;
 };
 
-export const getMe = async (prisma: PrismaClient, email: string) => {
+export const getMe = async (prisma: PrismaClient, id: string) => {
   const user = await prisma.user.findUnique({
     where: {
-      email,
+      id,
     },
     select: {
       id: true,
