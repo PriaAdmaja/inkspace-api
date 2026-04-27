@@ -7,6 +7,7 @@ import { fail, ok } from "../../libs/response.js";
 import { passwordStrength } from "../../libs/password-strength-checker.js";
 import { compareHash, hash } from "../../libs/hash.js";
 import { generateAccessToken, generateRefreshToken } from "../../libs/token.js";
+import { getCookie, setCookie } from "hono/cookie";
 
 /** REGISTER */
 export const register = async (c: Context<ContextWithPrisma>) => {
@@ -84,11 +85,18 @@ export const login = async (c: Context<ContextWithPrisma>) => {
 
   const accessToken = await generateAccessToken(userData.id, userData.email);
 
+  setCookie(c, "refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: REFRESH_TOKEN_EXPIRATION_DAYS * 24 * 60 * 60, // in seconds
+    path: "/auth/refresh", // Only send the cookie to the refresh endpoint
+  });
+
   return ok({
     c,
     data: {
       accessToken,
-      refreshToken,
     },
   });
 };
@@ -97,8 +105,16 @@ export const login = async (c: Context<ContextWithPrisma>) => {
 export const getAccessToken = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
-  const { refreshToken } =
-    await c.req.json<z.infer<typeof authSchema.regenerateAccessTokenSchema>>();
+  const refreshToken = getCookie(c, "refreshToken");
+
+  if (!refreshToken) {
+    return fail({
+      c,
+      message: "Unauthorized",
+      status: 401,
+    });
+  }
+
   const storedTokenData = await authRepository.getRefreshToken(
     prisma,
     refreshToken,
@@ -153,23 +169,23 @@ export const getAccessToken = async (c: Context<ContextWithPrisma>) => {
 /** LOGOUT */
 export const logout = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const userData = c.get("userData");
 
-  if (!userData) {
-    return fail({
-      c,
-      message: "Unauthorized",
-      status: 401,
+  const refreshToken = getCookie(c, "refreshToken");
+  let storedTokenData = null;
+  if (refreshToken) {
+    storedTokenData = await authRepository.getRefreshToken(
+      prisma,
+      refreshToken,
+    );
+
+    // Clear the refresh token cookie
+    setCookie(c, "refreshToken", "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 0, // Expire the cookie immediately
     });
   }
-
-  const { refreshToken } =
-    await c.req.json<z.infer<typeof authSchema.logoutSchema>>();
-
-  const storedTokenData = await authRepository.getRefreshToken(
-    prisma,
-    refreshToken,
-  );
 
   if (!storedTokenData) {
     return ok({ c, data: null });
