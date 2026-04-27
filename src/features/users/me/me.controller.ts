@@ -5,7 +5,6 @@ import { compareHash, hash } from "../../../libs/hash.js";
 import * as meRepository from "./me.repository.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
-import { accessTokenDecoder } from "../../../libs/token.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -30,7 +29,7 @@ export const getMe = async (c: Context<ContextWithPrisma>) => {
 };
 
 export const updateMe = async (c: Context<ContextWithPrisma>) => {
-  const userData = accessTokenDecoder(c.req.header("Authorization"));
+  const userData = c.get('userData')
 
   if (!userData) {
     return fail({
@@ -43,7 +42,7 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
 
   const body = await c.req.json<z.infer<typeof meSchema.updateMeSchema>>();
   const prisma = c.get("prisma");
-  const email = "";
+  const email = userData.email;
 
   const updateMe = await meRepository.updateMe(prisma, email, body);
 
