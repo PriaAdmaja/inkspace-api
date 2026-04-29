@@ -97,6 +97,13 @@ export const login = async (c: Context<ContextWithPrisma>) => {
     c,
     data: {
       accessToken,
+      user: {
+        id: userData.id,
+        email: userData.email,
+        username: userData.username,
+        avatar: userData.avatar,
+        about: userData.about,
+      },
     },
   });
 };
