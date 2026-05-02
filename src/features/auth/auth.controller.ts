@@ -90,7 +90,6 @@ export const login = async (c: Context<ContextWithPrisma>) => {
     secure: true,
     sameSite: "strict",
     maxAge: REFRESH_TOKEN_EXPIRATION_DAYS * 24 * 60 * 60, // in seconds
-    path: "/api/auth/refresh", // Only send the cookie to the refresh endpoint
   });
 
   return ok({
