@@ -8,7 +8,9 @@ import { prettyJSON } from "hono/pretty-json";
 const app = new Hono<ContextWithPrisma>();
 
 app.use(prettyJSON());
-app.use("/*", cors());
+app.use("/*", cors({
+  origin: "*",
+}));
 
 app.route("/", routes);
 
