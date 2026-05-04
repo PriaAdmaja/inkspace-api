@@ -9,7 +9,7 @@ const app = new Hono<ContextWithPrisma>();
 
 app.use(prettyJSON());
 app.use("/*", cors({
-  origin: "*",
+  origin: (origin) => origin || "*", // Allow all origins dynamically
   allowMethods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
