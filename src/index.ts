@@ -10,6 +10,8 @@ const app = new Hono<ContextWithPrisma>();
 app.use(prettyJSON());
 app.use("/*", cors({
   origin: "*",
+  allowMethods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
 }));
 
 app.route("/", routes);
