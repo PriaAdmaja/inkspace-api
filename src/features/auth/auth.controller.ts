@@ -88,7 +88,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
   setCookie(c, "refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: 'Lax',
     maxAge: REFRESH_TOKEN_EXPIRATION_DAYS * 24 * 60 * 60, // in seconds
   });
 
@@ -112,7 +112,7 @@ export const getAccessToken = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
   const refreshToken = getCookie(c, "refreshToken");
-
+  console.log("Received refresh token:", refreshToken); // Debug log to check the received refresh token
   if (!refreshToken) {
     return fail({
       c,

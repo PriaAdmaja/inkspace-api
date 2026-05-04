@@ -4,15 +4,20 @@ import routes from "./routes/index.js";
 import { ContextWithPrisma } from "./types/app.js";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
+import { csrf } from "hono/csrf";
 
 const app = new Hono<ContextWithPrisma>();
 
 app.use(prettyJSON());
-app.use("/*", cors({
-  origin: (origin) => origin || "*", // Allow all origins dynamically
-  allowMethods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-}));
+app.use(
+  "/*",
+  cors({
+    origin: (origin) => origin || "*", // Allow all origins dynamically
+    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
+app.use(csrf());
 
 app.route("/", routes);
 
