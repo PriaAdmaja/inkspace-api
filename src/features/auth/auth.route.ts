@@ -15,7 +15,7 @@ privateAuthRoutes.use(
 
 publicAuthRoutes.post("/login", withPrisma, zValidator(authSchema.loginSchema), authController.login);
 publicAuthRoutes.post("/register", withPrisma, zValidator(authSchema.registerSchema), authController.register);
-publicAuthRoutes.get("/refresh", withPrisma, authController.getAccessToken);
+publicAuthRoutes.post("/refresh", withPrisma, authController.getAccessToken);
 
 privateAuthRoutes.post("/logout", withPrisma,  authController.logout);
 

@@ -88,7 +88,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
   setCookie(c, "refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: 'Lax',
+    sameSite: 'None',
     maxAge: REFRESH_TOKEN_EXPIRATION_DAYS * 24 * 60 * 60, // in seconds
   });
 
