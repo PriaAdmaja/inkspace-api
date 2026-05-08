@@ -91,3 +91,11 @@ export const revokeRefreshToken = async (
     },
   });
 };
+
+export const clearUnusedToken = async (prisma: PrismaClient) => {
+  await prisma.refreshToken.deleteMany({
+    where: {
+      OR: [{ revoked: true }, { createdAt: { lt: new Date() } }],
+    },
+  });
+};
