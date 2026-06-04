@@ -74,9 +74,9 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
 
 export const createPost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const { email } = c.get("userData") || { email: undefined };
+  const { id } = c.get("userData") || { email: undefined };
 
-  if (!email) {
+  if (!id) {
     return fail({
       c,
       message: "User not found",
@@ -84,7 +84,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const userData = await meRepository.getMe(prisma, email);
+  const userData = await meRepository.getMe(prisma, id);
 
   if (!userData) {
     return fail({

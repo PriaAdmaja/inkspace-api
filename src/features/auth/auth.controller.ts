@@ -36,7 +36,7 @@ export const register = async (c: Context<ContextWithPrisma>) => {
   }
 
   // Hash the password before saving the user
-  const data = { ...body, password: await hash(body.password) };
+  const data = { ...body, password: hash(body.password) };
   const newUser = await authRepository.register(prisma, data);
 
   return ok({ c, data: newUser });
