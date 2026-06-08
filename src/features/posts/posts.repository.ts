@@ -130,6 +130,7 @@ export const createPost = async (
         id: true,
         title: true,
         content: true,
+        excerp: true,
         createdAt: true,
         updatedAt: true,
         author: {
@@ -284,6 +285,7 @@ export const updatePost = async (
         id: true,
         title: true,
         content: true,
+        excerp: true,
         createdAt: true,
         updatedAt: true,
         author: {
