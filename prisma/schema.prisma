@@ -46,7 +46,8 @@ model RefreshToken {
 model Post {
   id      String @id @default(cuid())
   title   String
-  content String
+  content Json
+  excerp  String
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)

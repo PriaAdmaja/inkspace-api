@@ -13,6 +13,7 @@ export const getAllPosts = async (
         id: true,
         title: true,
         content: true,
+        excerp: true,
         createdAt: true,
         updatedAt: true,
         author: {
@@ -45,14 +46,16 @@ export const getAllPosts = async (
   return { posts, total };
 };
 
+type PostSchema = z.infer<typeof postSchema>
 export const createPost = async (
   prisma: PrismaClient,
   {
     title,
     content,
     authorId,
+    excerp,
     tags,
-  }: { title: string; content: string; authorId: string; tags?: string[] },
+  }: { title: PostSchema['title']; content:PostSchema['content'] ; authorId: string; excerp: string; tags: PostSchema['tags'] },
 ) => {
   const tagsData = tags
     ? tags.map((tag) => {
@@ -100,6 +103,7 @@ export const createPost = async (
       data: {
         title,
         content,
+        excerp,
         author: {
           connect: {
             id: authorId,
@@ -163,6 +167,7 @@ export const getPostById = async (prisma: PrismaClient, id: string) => {
       id: true,
       title: true,
       content: true,
+      excerp: true,
       createdAt: true,
       updatedAt: true,
       author: {
