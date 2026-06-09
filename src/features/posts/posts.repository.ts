@@ -258,6 +258,7 @@ export const updatePost = async (
       data: {
         title: data.title,
         content: data.content,
+        excerp: data.excerp
       },
       select: {
         id: true,

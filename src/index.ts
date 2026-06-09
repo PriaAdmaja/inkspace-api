@@ -13,7 +13,7 @@ app.use(
   "/*",
   cors({
     origin: (origin) => origin || "*", // Allow all origins dynamically
-    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   }),
 );
