@@ -7,7 +7,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "prisma:generate": "prisma generate",
-    "prism:migrate-dev": "prisma migrate dev",
+    "prisma:migrate-dev": "prisma migrate dev",
     "postinstall": "bun run prisma:generate",
     "test": "vitest"
   },

@@ -5,15 +5,25 @@ import { generateTagSlug, generateTitleCase } from "../../libs/tags.js";
 
 export const getAllPosts = async (
   prisma: PrismaClient,
-  { take = 10, skip = 0 }: { take?: number; skip?: number },
+  {
+    take = 10,
+    skip = 0,
+    authorId,
+    isPublished,
+  }: { take?: number; skip?: number; authorId?: string; isPublished?: boolean },
 ) => {
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
+      where: {
+        authorId,
+        isPublished,
+      },
       select: {
         id: true,
         title: true,
         content: true,
         excerp: true,
+        isPublished: !!authorId,
         createdAt: true,
         updatedAt: true,
         author: {
@@ -40,13 +50,19 @@ export const getAllPosts = async (
       take,
       skip,
     }),
-    prisma.post.count(),
+
+    prisma.post.count({
+      where: {
+        authorId,
+        isPublished,
+      },
+    }),
   ]);
 
   return { posts, total };
 };
 
-type PostSchema = z.infer<typeof postSchema>
+type PostSchema = z.infer<typeof postSchema>;
 export const createPost = async (
   prisma: PrismaClient,
   {
@@ -55,7 +71,13 @@ export const createPost = async (
     authorId,
     excerp,
     tags,
-  }: { title: PostSchema['title']; content:PostSchema['content'] ; authorId: string; excerp: string; tags: PostSchema['tags'] },
+  }: {
+    title: PostSchema["title"];
+    content: PostSchema["content"];
+    authorId: string;
+    excerp: string;
+    tags: PostSchema["tags"];
+  },
 ) => {
   const tagsData = tags
     ? tags.map((tag) => {
@@ -170,6 +192,7 @@ export const getPostById = async (prisma: PrismaClient, id: string) => {
       content: true,
       excerp: true,
       createdAt: true,
+      isPublised: true,
       updatedAt: true,
       author: {
         select: {
@@ -258,7 +281,7 @@ export const updatePost = async (
       data: {
         title: data.title,
         content: data.content,
-        excerp: data.excerp
+        excerp: data.excerp,
       },
       select: {
         id: true,

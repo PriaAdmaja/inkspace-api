@@ -5,12 +5,22 @@ import { fail, ok } from "../../libs/response.js";
 import z from "zod";
 import { postSchema } from "./posts.schema.js";
 import { Context } from "hono";
+import { PrismaClient } from "../../generated/prisma/client.js";
 
-export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
-  const prisma = c.get("prisma");
-
-  const { page = 1, limit = 10 } = c.req.query();
-
+/**==== Post List ====*/
+export const getPostsList = async ({
+  prisma,
+  limit,
+  page,
+  authorId,
+  isPublished,
+}: {
+  prisma: PrismaClient;
+  page: number | string;
+  limit: number | string;
+  isPublished?: boolean;
+  authorId?: string;
+}) => {
   const pageInt = isNaN(Number(page)) ? 1 : Number(page);
   const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
   const take = limitInt;
@@ -19,6 +29,8 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const { posts, total } = await postsRepository.getAllPosts(prisma, {
     take,
     skip,
+    authorId,
+    isPublished,
   });
 
   const adjustedPostData = posts.map((post) => {
@@ -30,8 +42,7 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
 
   const lastPage = Math.ceil(total / limitInt) || pageInt;
 
-  return ok({
-    c,
+  return {
     data: adjustedPostData,
     meta: {
       current_page: pageInt,
@@ -39,8 +50,49 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
       limit: limitInt,
       total,
     },
+  };
+};
+
+export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+
+  const { page = 1, limit = 10 } = c.req.query();
+
+  const posts = await getPostsList({
+    limit,
+    page,
+    prisma,
+    isPublished: true,
+  });
+
+  return ok({
+    c,
+    data: posts.data,
+    meta: posts.meta,
   });
 };
+
+export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { page = 1, limit = 10 } = c.req.query();
+  const { id: authorId } = c.req.param();
+
+  const posts = await getPostsList({
+    limit,
+    authorId,
+    page,
+    prisma,
+    isPublished: true, 
+  });
+
+  return ok({
+    c,
+    data: posts.data,
+    meta: posts.meta,
+  });
+};
+
+/** Post by ID */
 
 export const getPostById = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -72,9 +124,11 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
   return ok({ c, data: adjustedPostData });
 };
 
+/** Create Post */
+
 export const createPost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const { id } = c.get("userData") || { email: undefined };
+  const { id } = c.get("userData") || { id: undefined };
 
   if (!id) {
     return fail({
@@ -119,6 +173,8 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
 
   return ok({ c, data: adjustedPostData });
 };
+
+/** Update Post */
 
 export const updatePost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");

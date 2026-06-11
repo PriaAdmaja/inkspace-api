@@ -5,6 +5,7 @@ import { compareHash, hash } from "../../../libs/hash.js";
 import * as meRepository from "./me.repository.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
+import { getPostsList } from "../../posts/posts.controller.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -29,7 +30,7 @@ export const getMe = async (c: Context<ContextWithPrisma>) => {
 };
 
 export const updateMe = async (c: Context<ContextWithPrisma>) => {
-  const userData = c.get('userData')
+  const userData = c.get("userData");
 
   if (!userData) {
     return fail({
@@ -38,7 +39,6 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
       status: 401,
     });
   }
-
 
   const body = await c.req.json<z.infer<typeof meSchema.updateMeSchema>>();
   const prisma = c.get("prisma");
@@ -50,7 +50,7 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
 };
 
 export const updatePassword = async (c: Context<ContextWithPrisma>) => {
-  const { email } = c.get("userData") || { email: '' };
+  const { email } = c.get("userData") || { email: "" };
 
   const body =
     await c.req.json<z.infer<typeof meSchema.updatePasswordSchema>>();
@@ -81,4 +81,30 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
   );
 
   return ok({ c, data: updatePassword });
+};
+
+export const getMePosts = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+
+  const { page = 1, limit = 10, isPublished } = c.req.query();
+  const { id: authorId } = c.get("userData") || { id: undefined };
+
+  if (!authorId) {
+    return fail({
+      c,
+      message: "You are unauthorized",
+      status: 401,
+    });
+  }
+
+  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
+  const { data, meta } = await getPostsList({
+    prisma,
+    limit,
+    page,
+    authorId,
+    isPublished: isPublishedValue,
+  });
+
+  return ok({ c, data, meta });
 };

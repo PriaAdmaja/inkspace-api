@@ -7,6 +7,7 @@ import { zValidator } from "../../../libs/validator.js";
 const meRoutes = new Hono();
 
 meRoutes.get("/", withPrisma, meController.getMe);
+meRoutes.get("/posts", withPrisma, meController.getMePosts);
 meRoutes.patch(
   "/",
   withPrisma,

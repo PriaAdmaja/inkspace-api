@@ -48,6 +48,7 @@ model Post {
   title   String
   content Json
   excerp  String
+  isPublished  Boolean @default(false)
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
