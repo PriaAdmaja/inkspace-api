@@ -192,7 +192,7 @@ export const getPostById = async (prisma: PrismaClient, id: string) => {
       content: true,
       excerp: true,
       createdAt: true,
-      isPublised: true,
+      isPublished: true,
       updatedAt: true,
       author: {
         select: {
