@@ -282,6 +282,7 @@ export const updatePost = async (
         title: data.title,
         content: data.content,
         excerp: data.excerp,
+        isPublished: data.isPublished,
       },
       select: {
         id: true,
@@ -310,6 +311,7 @@ export const updatePost = async (
         title: true,
         content: true,
         excerp: true,
+        isPublished: true,
         createdAt: true,
         updatedAt: true,
         author: {
@@ -336,4 +338,15 @@ export const updatePost = async (
   });
 
   return post;
+};
+
+export const publishPost = async (prisma: PrismaClient, id: string) => {
+  await prisma.post.update({
+    where: {
+      id,
+    },
+    data: {
+      isPublished: true,
+    },
+  });
 };

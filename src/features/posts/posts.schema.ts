@@ -5,4 +5,5 @@ export const postSchema = z.object({
   content: z.record(z.string(), z.any()),
   excerp: z.string().min(1, "Excerp is required"),
   tags: z.array(z.string()).optional(),
+  isPublished: z.boolean().optional()
 });

@@ -5,6 +5,7 @@ import { ContextWithPrisma } from "./types/app.js";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import { csrf } from "hono/csrf";
+import { allowedOrigin } from "./libs/constans.js";
 
 const app = new Hono<ContextWithPrisma>();
 
@@ -17,7 +18,15 @@ app.use(
     credentials: true,
   }),
 );
-app.use(csrf());
+
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    "*",
+    csrf({
+      origin: allowedOrigin,
+    }),
+  );
+}
 
 app.route("/", routes);
 

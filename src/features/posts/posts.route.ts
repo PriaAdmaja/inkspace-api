@@ -17,11 +17,13 @@ postsPrivateRoutes.post(
   postsController.createPost,
 );
 
-postsPrivateRoutes.patch(
+postsPrivateRoutes.put(
   "/:id",
   withPrisma,
   zValidator(postSchema),
   postsController.updatePost,
 );
+
+postsPrivateRoutes.patch("/:id/publish", withPrisma, postsController.publishPost);
 
 export default { postsPublicRoutes, postsPrivateRoutes };

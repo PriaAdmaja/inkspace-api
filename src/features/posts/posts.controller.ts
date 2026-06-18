@@ -74,15 +74,24 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
 
 export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const { page = 1, limit = 10 } = c.req.query();
+  const { page = 1, limit = 10, isPublished } = c.req.query();
   const { id: authorId } = c.req.param();
+  const isPublishedValue = isPublished ? isPublished === 'true' : undefined
+
+  if (!authorId) {
+    return fail({
+      c,
+      message: "User Id not found",
+      status: 400,
+    });
+  }
 
   const posts = await getPostsList({
     limit,
     authorId,
     page,
     prisma,
-    isPublished: true, 
+    isPublished: isPublishedValue,
   });
 
   return ok({
@@ -175,7 +184,6 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
 };
 
 /** Update Post */
-
 export const updatePost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
   const { id } = c.req.param();
@@ -195,6 +203,7 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
     content: body.content,
     excerp: body.excerp,
     tags: body.tags,
+    isPublished: body.isPublished,
   });
 
   if (!post) {
@@ -211,4 +220,22 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
   };
 
   return ok({ c, data: adjustedPostData });
+};
+
+/** Publish Post */
+export const publishPost = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { id } = c.req.param();
+
+  if (!id) {
+    return fail({
+      c,
+      message: "Post ID is required",
+      status: 400,
+    });
+  }
+
+  await postsRepository.publishPost(prisma, id);
+
+  return ok({ c, message: `Post ${id} is published succesfully`, data: null });
 };
