@@ -76,7 +76,7 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
   const { page = 1, limit = 10, isPublished } = c.req.query();
   const { id: authorId } = c.req.param();
-  const isPublishedValue = isPublished ? isPublished === 'true' : undefined
+  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
 
   if (!authorId) {
     return fail({
@@ -165,6 +165,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     authorId: userData.id,
     excerp: body.excerp,
     tags: body.tags,
+    isPublished: body.isPublished,
   });
 
   if (!post) {

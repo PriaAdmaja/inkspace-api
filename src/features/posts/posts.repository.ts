@@ -71,12 +71,14 @@ export const createPost = async (
     authorId,
     excerp,
     tags,
+    isPublished
   }: {
     title: PostSchema["title"];
     content: PostSchema["content"];
     authorId: string;
     excerp: string;
     tags: PostSchema["tags"];
+    isPublished: PostSchema['isPublished']
   },
 ) => {
   const tagsData = tags
@@ -126,6 +128,7 @@ export const createPost = async (
         title,
         content,
         excerp,
+        isPublished,
         author: {
           connect: {
             id: authorId,
