@@ -18,6 +18,7 @@ export const register = async (
       id: true,
       email: true,
       username: true,
+      name: true,
       avatar: true,
       about: true,
       createdAt: true,
@@ -27,14 +28,7 @@ export const register = async (
   return user;
 };
 
-export const findEmail = async (prisma: PrismaClient, email: string) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
-  return user;
-};
+
 
 export const saveRefreshToken = async (
   prisma: PrismaClient,
