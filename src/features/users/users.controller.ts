@@ -69,6 +69,7 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
     limit,
     page,
     username,
+    isPublished: false
   });
 
   return ok({

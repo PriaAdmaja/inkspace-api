@@ -3,6 +3,7 @@ import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
 import { compareHash, hash } from "../../libs/hash.js";
 import * as meRepository from "./me.repository.js";
+import * as sharedPostsRepository from "./../../shared/services/posts.services.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
 
@@ -96,36 +97,18 @@ export const getMePosts = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const pageInt = isNaN(Number(page)) ? 1 : Number(page);
-  const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
-  const take = limitInt;
-  const skip = (pageInt - 1) * take;
-
-  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
-  const { posts, total } = await meRepository.getAllPosts(prisma, {
-    isPublished: isPublishedValue,
-    take,
-    skip,
+  const isPublishedValue = isPublished ? isPublished === 'true' : undefined
+  const { data, meta } = await sharedPostsRepository.getUserPosts({
+    prisma,
+    limit,
+    page,
     username,
+    isPublished: isPublishedValue
   });
-
-  const adjustedPostData = posts.map((post) => {
-    return {
-      ...post,
-      tags: post.tags.map((tag) => tag.tag),
-    };
-  });
-
-  const lastPage = Math.ceil(total / limitInt) || pageInt;
 
   return ok({
     c,
-    data: adjustedPostData,
-    meta: {
-      current_page: pageInt,
-      last_page: lastPage,
-      limit: limitInt,
-      total,
-    },
+    data,
+    meta,
   });
 };

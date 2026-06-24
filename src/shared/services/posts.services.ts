@@ -6,11 +6,13 @@ export const getUserPosts = async ({
   limit,
   page,
   username,
+  isPublished
 }: {
   prisma: PrismaClient;
   page: number | string;
   limit: number | string;
   username?: string;
+  isPublished?: boolean
 }) => {
   const pageInt = isNaN(Number(page)) ? 1 : Number(page);
   const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
@@ -21,7 +23,7 @@ export const getUserPosts = async ({
     take,
     skip,
     username,
-    isPublished: true,
+    isPublished,
   });
 
   const adjustedPostData = posts.map((post) => {
