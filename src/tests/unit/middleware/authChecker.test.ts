@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from "vitest";
-import { authChecker } from "../../../middlewares/auth-checker.js";
 import { HttpError } from "../../../libs/http-error.js";
 
 describe("authChecker middleware", () => {

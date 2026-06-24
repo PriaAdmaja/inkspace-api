@@ -29,7 +29,7 @@ export const getUserPosts = async ({
   const adjustedPostData = posts.map((post) => {
     return {
       ...post,
-      tags: post.tags.map((tag) => tag.tag),
+      tags: post.tags.map((tag: { tag: { name: string; slug: string } }) => tag.tag),
     };
   });
 
