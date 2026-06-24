@@ -12,12 +12,14 @@ export const getAllPosts = async (
     isPublished,
   }: { take?: number; skip?: number; username?: string; isPublished?: boolean },
 ) => {
+  const where = {
+    ...(username ? { author: { username } } : {}),
+    ...(typeof isPublished !== "undefined" ? { isPublished } : {}),
+  };
+
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
-      where: {
-        username,
-        isPublished,
-      },
+      where,
       select: {
         id: true,
         title: true,
@@ -51,10 +53,7 @@ export const getAllPosts = async (
     }),
 
     prisma.post.count({
-      where: {
-        username,
-        isPublished,
-      },
+      where,
     }),
   ]);
 
