@@ -23,7 +23,6 @@ export const getAllPosts = async (
         title: true,
         content: true,
         excerp: true,
-        isPublished: !!username,
         createdAt: true,
         updatedAt: true,
         author: {

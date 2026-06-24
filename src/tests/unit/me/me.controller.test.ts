@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { register } from "../../../features/users/me/me.controller.js";
-import * as meRepository from "../../../features/users/me/me.repository.js";
+import { register } from "../../../features/me/me.controller.js";
+import * as meRepository from "../../../features/me/me.repository.js";
 
 vi.mock("../../../features/users/me/me.repository.js");
 

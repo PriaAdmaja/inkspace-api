@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { ContextWithPrisma } from "../types/app.js";
-import meRoutes from "../features/users/me/me.route.js";
+import meRoutes from "../features/me/me.route.js";
 import postsRoutes from "../features/posts/posts.route.js";
 import { jwt } from "hono/jwt";
 import { JWT_ALGORITHM } from "../libs/token.js";

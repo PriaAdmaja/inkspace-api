@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { ContextWithPrisma } from "../../types/app.js";
 import * as authSchema from "./auth.schema.js";
 import * as authRepository from "./auth.repository.js";
- import * as usersRepository from "../users/users.repository.js";
+ import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
 import z from "zod";
 import { fail, ok } from "../../libs/response.js";
 import { passwordStrength } from "../../libs/password-strength-checker.js";
@@ -27,7 +27,7 @@ export const register = async (c: Context<ContextWithPrisma>) => {
   }
 
   // Check if user already exists
-  const isEmailExists = await usersRepository.findEmail(prisma, body.email);
+  const isEmailExists = await sharedUsersRepository.findEmail(prisma, body.email);
   if (isEmailExists !== null) {
     return fail({
       c,
@@ -36,7 +36,7 @@ export const register = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-   const isUsernameExists = await usersRepository.findUsername(
+   const isUsernameExists = await sharedUsersRepository.findUsername(
     prisma,
     body.username,
   );
@@ -62,7 +62,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
   // Check if user exists
-  const userData = await usersRepository.findEmail(prisma, body.email);
+  const userData = await sharedUsersRepository.findEmail(prisma, body.email);
   if (userData === null) {
     return fail({
       c,

@@ -1,68 +1,22 @@
 import * as postsRepository from "./posts.repository.js";
-import * as meRepository from "../../features/users/me/me.repository.js";
+import * as postsService from "./posts.service.js";
+import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
 import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
 import z from "zod";
 import { postSchema } from "./posts.schema.js";
 import { Context } from "hono";
-import { PrismaClient } from "../../generated/prisma/client.js";
 
 /**==== Post List ====*/
-export const getPostsList = async ({
-  prisma,
-  limit,
-  page,
-  username,
-  isPublished,
-}: {
-  prisma: PrismaClient;
-  page: number | string;
-  limit: number | string;
-  isPublished?: boolean;
-  username?: string;
-}) => {
-  const pageInt = isNaN(Number(page)) ? 1 : Number(page);
-  const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
-  const take = limitInt;
-  const skip = (pageInt - 1) * take;
-
-  const { posts, total } = await postsRepository.getAllPosts(prisma, {
-    take,
-    skip,
-    username,
-    isPublished,
-  });
-
-  const adjustedPostData = posts.map((post) => {
-    return {
-      ...post,
-      tags: post.tags.map((tag) => tag.tag),
-    };
-  });
-
-  const lastPage = Math.ceil(total / limitInt) || pageInt;
-
-  return {
-    data: adjustedPostData,
-    meta: {
-      current_page: pageInt,
-      last_page: lastPage,
-      limit: limitInt,
-      total,
-    },
-  };
-};
-
 export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
   const { page = 1, limit = 10 } = c.req.query();
 
-  const posts = await getPostsList({
+  const posts = await postsService.getPostsList({
     limit,
     page,
     prisma,
-    isPublished: true,
   });
 
   return ok({
@@ -74,10 +28,8 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
 
 export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const userData = c.get("userData");
-  const { page = 1, limit = 10, isPublished } = c.req.query();
+  const { page = 1, limit = 10 } = c.req.query();
   const { username } = c.req.param();
-  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
 
   if (!username) {
     return fail({
@@ -87,12 +39,11 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const posts = await getPostsList({
+  const posts = await postsService.getPostsList({
     limit,
     username,
     page,
     prisma,
-    isPublished: userData?.username === username ? isPublishedValue : false,
   });
 
   return ok({
@@ -138,9 +89,9 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
 
 export const createPost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const { id } = c.get("userData") || { id: undefined };
+  const { username } = c.get("userData") || { id: undefined };
 
-  if (!id) {
+  if (!username) {
     return fail({
       c,
       message: "User not found",
@@ -148,7 +99,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const userData = await meRepository.getMe(prisma, id);
+  const userData = await sharedUsersRepository.findUsername(prisma, username)
 
   if (!userData) {
     return fail({

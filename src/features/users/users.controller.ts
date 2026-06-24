@@ -1,5 +1,6 @@
 import { Context } from "hono";
-import * as usersRepository from "./users.repository.js";
+import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
+import * as sharedPostServices from "../../shared/services/posts.services.js";
 import * as usersSchema from "./users.schema.js";
 import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
@@ -10,7 +11,7 @@ export const checkingUsername = async (c: Context<ContextWithPrisma>) => {
   const { username } =
     await c.req.json<z.infer<typeof usersSchema.checkingUsernameSchema>>();
 
-  const userData = await usersRepository.findUsername(prisma, username);
+  const userData = await sharedUsersRepository.findUsername(prisma, username);
 
   return ok({
     c,
@@ -28,7 +29,7 @@ export const getUserData = async (c: Context<ContextWithPrisma>) => {
     return fail({ c, message: "Invalid username" });
   }
 
-  const userData = await usersRepository.findUsername(prisma, username);
+  const userData = await sharedUsersRepository.findUsername(prisma, username);
 
   if (!userData) {
     return fail({
@@ -46,5 +47,33 @@ export const getUserData = async (c: Context<ContextWithPrisma>) => {
       about: userData.about,
       avatar: userData.avatar,
     },
+  });
+};
+
+export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+
+  const { page = 1, limit = 10 } = c.req.query();
+  const { username } = c.get("userData") || { id: undefined };
+
+  if (!username) {
+    return fail({
+      c,
+      message: "You are unauthorized",
+      status: 401,
+    });
+  }
+
+  const { data, meta } = await sharedPostServices.getUserPosts({
+    prisma,
+    limit,
+    page,
+    username,
+  });
+
+  return ok({
+    c,
+    data,
+    meta,
   });
 };
