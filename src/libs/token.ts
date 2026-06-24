@@ -11,11 +11,12 @@ export const generateRefreshToken = () => {
     .join("");
 };
 
-export const generateAccessToken = async (userId: string, email: string) => {
+export const generateAccessToken = async (userId: string, email: string, username: string) => {
   const expiresIn = 15 * 60; // 15 minutes
   const payload = {
     sub: userId,
     email,
+    username,
     exp: Math.floor(Date.now() / 1000) + expiresIn,
   };
   const token = await Jwt.sign(

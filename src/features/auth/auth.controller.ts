@@ -96,7 +96,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
 
   await authRepository.saveRefreshToken(prisma, authData);
 
-  const accessToken = await generateAccessToken(userData.id, userData.email);
+  const accessToken = await generateAccessToken(userData.id, userData.email, userData.username);
 
   setCookie(c, "refreshToken", refreshToken, {
     httpOnly: true,
@@ -180,6 +180,7 @@ export const getAccessToken = async (c: Context<ContextWithPrisma>) => {
   const accessToken = await generateAccessToken(
     storedTokenData.userId,
     storedTokenData.user.email,
+    storedTokenData.user.username
   );
 
   return ok({

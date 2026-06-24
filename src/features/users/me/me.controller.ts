@@ -87,9 +87,9 @@ export const getMePosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
   const { page = 1, limit = 10, isPublished } = c.req.query();
-  const { id: authorId } = c.get("userData") || { id: undefined };
+  const { username } = c.get("userData") || { id: undefined };
 
-  if (!authorId) {
+  if (!username) {
     return fail({
       c,
       message: "You are unauthorized",
@@ -102,7 +102,7 @@ export const getMePosts = async (c: Context<ContextWithPrisma>) => {
     prisma,
     limit,
     page,
-    authorId,
+    username,
     isPublished: isPublishedValue,
   });
 

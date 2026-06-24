@@ -12,14 +12,14 @@ export const getPostsList = async ({
   prisma,
   limit,
   page,
-  authorId,
+  username,
   isPublished,
 }: {
   prisma: PrismaClient;
   page: number | string;
   limit: number | string;
   isPublished?: boolean;
-  authorId?: string;
+  username?: string;
 }) => {
   const pageInt = isNaN(Number(page)) ? 1 : Number(page);
   const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
@@ -29,7 +29,7 @@ export const getPostsList = async ({
   const { posts, total } = await postsRepository.getAllPosts(prisma, {
     take,
     skip,
-    authorId,
+    username,
     isPublished,
   });
 
@@ -74,24 +74,25 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
 
 export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
+  const userData = c.get("userData");
   const { page = 1, limit = 10, isPublished } = c.req.query();
-  const { id: authorId } = c.req.param();
+  const { username } = c.req.param();
   const isPublishedValue = isPublished ? isPublished === "true" : undefined;
 
-  if (!authorId) {
+  if (!username) {
     return fail({
       c,
-      message: "User Id not found",
+      message: "User not found",
       status: 400,
     });
   }
 
   const posts = await getPostsList({
     limit,
-    authorId,
+    username,
     page,
     prisma,
-    isPublished: isPublishedValue,
+    isPublished: userData?.username === username ? isPublishedValue : false,
   });
 
   return ok({

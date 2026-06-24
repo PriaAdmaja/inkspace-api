@@ -19,6 +19,7 @@ export function tokenDecoder(c: Context, next: Next) {
   const userData: UserData = {
     id: String(payload.sub),
     email: String(payload.email),
+    username: String(payload.username)
   };
   c.set("userData", userData);
   

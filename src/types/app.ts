@@ -3,6 +3,7 @@ import { PrismaClient } from "../generated/prisma/client.js";
 export type UserData = {
   id: string;
   email: string;
+  username: string
 };
 
 export type ContextWithPrisma = {

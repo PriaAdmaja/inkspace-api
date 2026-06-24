@@ -62,6 +62,7 @@ export const getRefreshToken = async (prisma: PrismaClient, token: string) => {
       user: {
         select: {
           email: true,
+          username: true
         },
       },
       expiresAt: true,
