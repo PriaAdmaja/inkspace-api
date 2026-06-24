@@ -8,6 +8,7 @@ import { zValidator } from "../../libs/validator.js";
 const usersPublicRoutes = new Hono();
 
 usersPublicRoutes.get("/:username/posts", withPrisma, getUserPosts);
+usersPublicRoutes.get("/:username", withPrisma, usersController.getUserData);
 usersPublicRoutes.post(
   "/username/check",
   withPrisma,
