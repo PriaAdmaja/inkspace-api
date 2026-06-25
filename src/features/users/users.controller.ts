@@ -45,8 +45,7 @@ export const getUserData = async (c: Context<ContextWithPrisma>) => {
       name: userData.name,
       username: userData.username,
       about: userData.about,
-      avatar: userData.avatar,
-      email: userData.email,
+      avatar: userData.avatar
     },
   });
 };
