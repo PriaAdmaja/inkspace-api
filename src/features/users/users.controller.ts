@@ -46,6 +46,7 @@ export const getUserData = async (c: Context<ContextWithPrisma>) => {
       username: userData.username,
       about: userData.about,
       avatar: userData.avatar,
+      email: userData.email,
     },
   });
 };
@@ -69,7 +70,7 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
     limit,
     page,
     username,
-    isPublished: false
+    isPublished: false,
   });
 
   return ok({
