@@ -26,6 +26,7 @@ export const getAllPosts = async (
         content: true,
         excerp: true,
         createdAt: true,
+        isPublished: true,
         updatedAt: true,
         author: {
           select: {
