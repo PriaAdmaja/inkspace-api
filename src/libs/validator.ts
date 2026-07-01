@@ -2,8 +2,8 @@ import { zValidator as zv } from "@hono/zod-validator";
 import { z } from "zod";
 import { fail } from "./response.js";
 
-export const zValidator = <T extends z.ZodTypeAny>(schema: T) => {
-  return zv("json", schema, (result, c) => {
+export const zValidator = <T extends z.ZodTypeAny>(schema: T, dataType: "json" | "form" = 'json') => {
+  return zv(dataType, schema, (result, c) => {
     if (!result.success) {
       const errors = result.error.issues.map((issue) => ({
         field: issue.path.join("."),

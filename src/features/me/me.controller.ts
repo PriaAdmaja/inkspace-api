@@ -6,6 +6,7 @@ import * as meRepository from "./me.repository.js";
 import * as sharedPostsRepository from "./../../shared/services/posts.services.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
+import { imageUploader } from "../../utils/uploader.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -40,11 +41,20 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const body = await c.req.json<z.infer<typeof meSchema.updateMeSchema>>();
   const prisma = c.get("prisma");
-  const email = userData.email;
+  const parseBody = await c.req.parseBody();
 
-  const updateMe = await meRepository.updateMe(prisma, email, body);
+  const avatarFile = parseBody.avatar as File | undefined;
+  const uploadedAvatar = avatarFile ? await imageUploader(avatarFile, `avatar_${userData.username}`) : undefined;
+
+  const data: meSchema.UpdateMeData = {
+    name: parseBody.name as string,
+    about: parseBody.about as string | null,
+    avatar: uploadedAvatar?.secure_url || null,
+  };
+
+  const email = userData.email;
+  const updateMe = await meRepository.updateMe(prisma, email, data);
 
   return ok({ c, data: updateMe });
 };
@@ -97,13 +107,13 @@ export const getMePosts = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const isPublishedValue = isPublished ? isPublished === 'true' : undefined
+  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
   const { data, meta } = await sharedPostsRepository.getUserPosts({
     prisma,
     limit,
     page,
     username,
-    isPublished: isPublishedValue
+    isPublished: isPublishedValue,
   });
 
   return ok({

@@ -11,7 +11,7 @@ meRoutes.get("/posts", withPrisma, meController.getMePosts);
 meRoutes.patch(
   "/",
   withPrisma,
-  zValidator(meSchema.updateMeSchema),
+  zValidator(meSchema.updateMeSchema, 'form'),
   meController.updateMe,
 );
 meRoutes.patch(

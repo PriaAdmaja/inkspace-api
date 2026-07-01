@@ -1,6 +1,6 @@
 import z from "zod";
 import { PrismaClient } from "../../generated/prisma/client.js";
-import { registerSchema, updateMeSchema } from "./me.schema.js";
+import { registerSchema, UpdateMeData } from "./me.schema.js";
 
 export const register = async (prisma: PrismaClient, data: z.infer<typeof registerSchema>) => {
   const user = await prisma.user.create({
@@ -45,21 +45,22 @@ export const getMe = async (prisma: PrismaClient, id: string) => {
 export const updateMe = async (
   prisma: PrismaClient,
   email: string,
-  data: z.infer<typeof updateMeSchema>,
+  data: UpdateMeData,
 ) => {
   const user = await prisma.user.update({
     where: {
       email,
     },
     data: {
-      username: data.username,
       avatar: data.avatar,
       about: data.about,
+      name: data.name
     },
     select: {
       id: true,
       email: true,
       username: true,
+      name: true,
       avatar: true,
       about: true,
       createdAt: true,
