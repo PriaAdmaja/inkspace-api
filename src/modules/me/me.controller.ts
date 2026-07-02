@@ -70,7 +70,6 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
       ? await imageUploader({
           file: avatarFile,
           folderName: "avatars",
-          name: `avatar_${userData.username}`,
         })
       : undefined;
 

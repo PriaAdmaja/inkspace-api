@@ -8,7 +8,7 @@ export const imageUploader = async ({
 }: {
   file: File;
   folderName: string;
-  name: string;
+  name?: string;
 }): Promise<UploadApiResponse> => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
