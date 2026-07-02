@@ -28,17 +28,19 @@ export const updateMeSchema = z.object({
       (file) => !file || file.size <= 5 * 1024 * 1024,
       "Maximum size is 5MB",
     ),
+  avatarAction: z.enum(["upload", "remove"]).optional(),
   about: z.string().nullable(),
 });
 
-
 export const updatePasswordSchema = z.object({
-    currentPassword: z
+  currentPassword: z
     .string()
     .min(6, { message: "Current password must be at least 6 characters long" }),
-    newPassword: z
+  newPassword: z
     .string()
     .min(6, { message: "New password must be at least 6 characters long" }),
 });
 
-export type UpdateMeData = Omit<z.infer<typeof updateMeSchema>, "avatar"> & {avatar?: string | null};
+export type UpdateMeData = Omit<z.infer<typeof updateMeSchema>, "avatar"> & {
+  avatar?: string | null;
+};

@@ -6,7 +6,7 @@ import * as meRepository from "./me.repository.js";
 import * as sharedPostsRepository from "../../shared/services/posts.services.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
-import { imageUploader } from "../../libs/images.js";
+import { deleteImage, imageUploader } from "../../libs/images.js";
 import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
@@ -56,13 +56,23 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
   }
 
   const avatarFile = parseBody.avatar as File | undefined;
-  const uploadedAvatar = avatarFile
-    ? await imageUploader({
-        file: avatarFile,
-        folderName: "avatars",
-        name: `avatar_${userData.username}`,
-      })
-    : undefined;
+  const avatarAction = parseBody.avatarAction as
+    | "upload"
+    | "remove"
+    | undefined;
+
+  if (avatarAction === "remove" && currentUserData.avatar) {
+    await deleteImage(currentUserData.avatar);
+  }
+
+  const uploadedAvatar =
+    avatarFile && avatarAction === "upload"
+      ? await imageUploader({
+          file: avatarFile,
+          folderName: "avatars",
+          name: `avatar_${userData.username}`,
+        })
+      : undefined;
 
   const data: meSchema.UpdateMeData = {
     name: parseBody.name as string,
