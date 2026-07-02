@@ -70,9 +70,15 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
           file: avatarFile,
           folderName: "avatars",
         });
+
+        if (currentUserData.avatar) {
+          await deleteImage(currentUserData.avatar);
+        }
+
         avatar = uploadedImage.public_id;
       }
       break;
+
     case "remove":
       if (currentUserData.avatar) {
         await deleteImage(currentUserData.avatar);
