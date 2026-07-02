@@ -6,7 +6,7 @@ import * as meRepository from "./me.repository.js";
 import * as sharedPostsRepository from "../../shared/services/posts.services.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
-import { imageUploader } from "../../libs/uploader.js";
+import { imageUploader } from "../../libs/images.js";
 import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
@@ -45,8 +45,24 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
   const parseBody = await c.req.parseBody();
 
+  const currentUserData = await meRepository.getMe(prisma, userData.id);
+
+  if (!currentUserData) {
+    return fail({
+      c,
+      message: "User not found",
+      status: 404,
+    });
+  }
+
   const avatarFile = parseBody.avatar as File | undefined;
-  const uploadedAvatar = avatarFile ? await imageUploader(avatarFile, `avatar_${userData.username}`) : undefined;
+  const uploadedAvatar = avatarFile
+    ? await imageUploader({
+        file: avatarFile,
+        folderName: "avatars",
+        name: `avatar_${userData.username}`,
+      })
+    : undefined;
 
   const data: meSchema.UpdateMeData = {
     name: parseBody.name as string,
@@ -85,11 +101,7 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  await meRepository.updatePassword(
-    prisma,
-    email,
-    hash(body.newPassword),
-  );
+  await meRepository.updatePassword(prisma, email, hash(body.newPassword));
 
   return ok({ c, data: null, message: "Password updated successfully" });
 };
