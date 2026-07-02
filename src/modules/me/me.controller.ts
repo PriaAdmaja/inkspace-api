@@ -61,22 +61,33 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
     | "remove"
     | undefined;
 
-  if (avatarAction === "remove" && currentUserData.avatar) {
-    await deleteImage(currentUserData.avatar);
-  }
+  let avatar = undefined;
 
-  const uploadedAvatar =
-    avatarFile && avatarAction === "upload"
-      ? await imageUploader({
+  switch (avatarAction) {
+    case "upload":
+      if (avatarFile) {
+        const uploadedImage = await imageUploader({
           file: avatarFile,
           folderName: "avatars",
-        })
-      : undefined;
+        });
+        avatar = uploadedImage.public_id;
+      }
+      break;
+    case "remove":
+      if (currentUserData.avatar) {
+        await deleteImage(currentUserData.avatar);
+      }
+      avatar = null;
+      break;
+    default:
+      avatar = currentUserData?.avatar;
+      break;
+  }
 
   const data: meSchema.UpdateMeData = {
     name: parseBody.name as string,
     about: parseBody.about as string | null,
-    avatar: uploadedAvatar?.public_id || null,
+    avatar,
   };
 
   const email = userData.email;
