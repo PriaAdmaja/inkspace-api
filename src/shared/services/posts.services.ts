@@ -1,18 +1,19 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
-import * as usersRepository from "../../features/users/users.repository.js";
+import { generatePostResponse } from "../mapper/posts.mapper.js";
+import * as usersRepository from "../repository/users.repository.js";
 
 export const getUserPosts = async ({
   prisma,
   limit,
   page,
   username,
-  isPublished
+  isPublished,
 }: {
   prisma: PrismaClient;
   page: number | string;
   limit: number | string;
   username?: string;
-  isPublished?: boolean
+  isPublished?: boolean;
 }) => {
   const pageInt = isNaN(Number(page)) ? 1 : Number(page);
   const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
@@ -27,10 +28,7 @@ export const getUserPosts = async ({
   });
 
   const adjustedPostData = posts.map((post) => {
-    return {
-      ...post,
-      tags: post.tags.map((tag: { tag: { name: string; slug: string } }) => tag.tag),
-    };
+    return generatePostResponse(post);
   });
 
   const lastPage = Math.ceil(total / limitInt) || pageInt;

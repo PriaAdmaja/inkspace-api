@@ -7,7 +7,7 @@ import z from "zod";
 import privateRoutes from "./private.route.js";
 import { ContextWithPrisma } from "../types/app.js";
 import publicRoutes from "./public.route.js";
-import authRoutes from "../features/auth/auth.route.js";
+import authRoutes from "../modules/auth/auth.routes.js";
 
 const routes = new Hono<ContextWithPrisma>();
 routes.route("/api/public", publicRoutes);

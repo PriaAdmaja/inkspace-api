@@ -6,6 +6,7 @@ import { fail, ok } from "../../libs/response.js";
 import z from "zod";
 import { postSchema } from "./posts.schema.js";
 import { Context } from "hono";
+import { generatePostResponse } from "../../shared/mapper/posts.mapper.js";
 
 /**==== Post List ====*/
 export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
@@ -77,12 +78,7 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const adjustedPostData = {
-    ...post,
-    tags: post.tags.map((tag) => tag.tag),
-  };
-
-  return ok({ c, data: adjustedPostData });
+  return ok({ c, data: generatePostResponse(post) });
 };
 
 /** Create Post */
@@ -99,7 +95,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const userData = await sharedUsersRepository.findUsername(prisma, username)
+  const userData = await sharedUsersRepository.findUsername(prisma, username);
 
   if (!userData) {
     return fail({
@@ -128,12 +124,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const adjustedPostData = {
-    ...post,
-    tags: post.tags.map((tag) => tag.tag),
-  };
-
-  return ok({ c, data: adjustedPostData });
+  return ok({ c, data: generatePostResponse(post) });
 };
 
 /** Update Post */
@@ -167,12 +158,7 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const adjustedPostData = {
-    ...post,
-    tags: post.tags.map((tag) => tag.tag),
-  };
-
-  return ok({ c, data: adjustedPostData });
+  return ok({ c, data: generatePostResponse(post) });
 };
 
 /** Publish Post */

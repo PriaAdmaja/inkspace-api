@@ -1,5 +1,7 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
-import * as postsRepository from './posts.repository.js'
+import { smallAvatar } from "../../libs/avatar.js";
+import * as postsRepository from "./posts.repository.js";
+
 export const getPostsList = async ({
   prisma,
   limit,
@@ -27,6 +29,10 @@ export const getPostsList = async ({
     return {
       ...post,
       tags: post.tags.map((tag) => tag.tag),
+      author: {
+        ...post.author,
+        avatar: post.author.avatar ? smallAvatar(post.author.avatar) : null,
+      },
     };
   });
 

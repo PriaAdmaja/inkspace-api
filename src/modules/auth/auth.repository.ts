@@ -14,16 +14,6 @@ export const register = async (
       username: data.username,
       password: data.password,
     },
-    select: {
-      id: true,
-      email: true,
-      username: true,
-      name: true,
-      avatar: true,
-      about: true,
-      createdAt: true,
-      updatedAt: true,
-    },
   });
   return user;
 };

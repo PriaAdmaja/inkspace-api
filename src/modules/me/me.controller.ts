@@ -3,10 +3,11 @@ import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
 import { compareHash, hash } from "../../libs/hash.js";
 import * as meRepository from "./me.repository.js";
-import * as sharedPostsRepository from "./../../shared/services/posts.services.js";
+import * as sharedPostsRepository from "../../shared/services/posts.services.js";
 import z from "zod";
 import * as meSchema from "./me.schema.js";
-import { imageUploader } from "../../utils/uploader.js";
+import { imageUploader } from "../../libs/uploader.js";
+import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -50,13 +51,13 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
   const data: meSchema.UpdateMeData = {
     name: parseBody.name as string,
     about: parseBody.about as string | null,
-    avatar: uploadedAvatar?.secure_url || null,
+    avatar: uploadedAvatar?.public_id || null,
   };
 
   const email = userData.email;
   const updateMe = await meRepository.updateMe(prisma, email, data);
 
-  return ok({ c, data: updateMe });
+  return ok({ c, data: generateUserResponse(updateMe) });
 };
 
 export const updatePassword = async (c: Context<ContextWithPrisma>) => {
@@ -84,13 +85,13 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const updatePassword = await meRepository.updatePassword(
+  await meRepository.updatePassword(
     prisma,
     email,
     hash(body.newPassword),
   );
 
-  return ok({ c, data: updatePassword });
+  return ok({ c, data: null, message: "Password updated successfully" });
 };
 
 export const getMePosts = async (c: Context<ContextWithPrisma>) => {

@@ -2,6 +2,7 @@ import z from "zod";
 import { PrismaClient } from "../../generated/prisma/client.js";
 import { postSchema } from "./posts.schema.js";
 import { generateTagSlug, generateTitleCase } from "../../libs/tags.js";
+import { postSelect } from "../../shared/select/posts.select.js";
 
 export const getAllPosts = async (
   prisma: PrismaClient,
@@ -20,32 +21,7 @@ export const getAllPosts = async (
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
       where,
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        excerp: true,
-        createdAt: true,
-        isPublished: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatar: true,
-          },
-        },
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-      },
+      select: postSelect,
       orderBy: {
         createdAt: "desc",
       },
@@ -150,31 +126,7 @@ export const createPost = async (
       where: {
         id: post.id,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        excerp: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatar: true,
-          },
-        },
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-      },
+      select: postSelect,
     });
 
     return updatedPost;
@@ -188,32 +140,7 @@ export const getPostById = async (prisma: PrismaClient, id: string) => {
     where: {
       id,
     },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      excerp: true,
-      createdAt: true,
-      isPublished: true,
-      updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          avatar: true,
-        },
-      },
-      tags: {
-        select: {
-          tag: {
-            select: {
-              name: true,
-              slug: true,
-            },
-          },
-        },
-      },
-    },
+    select: postSelect,
   });
 
   return post;
@@ -308,32 +235,7 @@ export const updatePost = async (
       where: {
         id,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        excerp: true,
-        isPublished: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            avatar: true,
-          },
-        },
-        tags: {
-          select: {
-            tag: {
-              select: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
-      },
+      select: postSelect,
     });
 
     return updatedPost;

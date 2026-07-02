@@ -9,6 +9,7 @@ import { passwordStrength } from "../../libs/password-strength-checker.js";
 import { compareHash, hash } from "../../libs/hash.js";
 import { generateAccessToken, generateRefreshToken } from "../../libs/token.js";
 import { getCookie, setCookie } from "hono/cookie";
+import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
 
 /** REGISTER */
 export const register = async (c: Context<ContextWithPrisma>) => {
@@ -52,7 +53,7 @@ export const register = async (c: Context<ContextWithPrisma>) => {
   const data = { ...body, password: hash(body.password) };
   const newUser = await authRepository.register(prisma, data);
 
-  return ok({ c, data: newUser });
+  return ok({ c, data: generateUserResponse(newUser) });
 };
 
 /** LOGIN */
@@ -109,14 +110,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
     c,
     data: {
       accessToken,
-      user: {
-        id: userData.id,
-        email: userData.email,
-        username: userData.username,
-        name: userData.name,
-        avatar: userData.avatar,
-        about: userData.about,
-      },
+      user: generateUserResponse(userData),
     },
   });
 };
