@@ -12,12 +12,13 @@ import { generatePostResponse } from "../../shared/mapper/posts.mapper.js";
 export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
 
-  const { page = 1, limit = 10 } = c.req.query();
+  const { page = 1, limit = 10, search } = c.req.query();
 
   const posts = await postsService.getPostsList({
     limit,
     page,
     prisma,
+    search
   });
 
   return ok({

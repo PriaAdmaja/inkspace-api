@@ -1,5 +1,5 @@
 import z from "zod";
-import { PrismaClient } from "../../generated/prisma/client.js";
+import { PrismaClient, Prisma } from "../../generated/prisma/client.js";
 import { postSchema } from "./posts.schema.js";
 import { generateTagSlug, generateTitleCase } from "../../libs/tags.js";
 import { postSelect } from "../../shared/select/posts.select.js";
@@ -11,11 +11,33 @@ export const getAllPosts = async (
     skip = 0,
     username,
     isPublished,
-  }: { take?: number; skip?: number; username?: string; isPublished?: boolean },
+    search,
+  }: {
+    take?: number;
+    skip?: number;
+    username?: string;
+    isPublished?: boolean;
+    search?: string;
+  },
 ) => {
-  const where = {
+  const where: Prisma.PostWhereInput = {
     ...(username ? { author: { username } } : {}),
     ...(typeof isPublished !== "undefined" ? { isPublished } : {}),
+    ...(search
+      ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { excerp: { contains: search, mode: "insensitive" as const } },
+            {
+              tags: {
+                some: {
+                  tag: { name: { contains: search, mode: "insensitive" as const } },
+                },
+              },
+            },
+          ],
+        }
+      : {}),
   };
 
   const [posts, total] = await Promise.all([
@@ -46,14 +68,14 @@ export const createPost = async (
     authorId,
     excerp,
     tags,
-    isPublished
+    isPublished,
   }: {
     title: PostSchema["title"];
     content: PostSchema["content"];
     authorId: string;
     excerp: string;
     tags: PostSchema["tags"];
-    isPublished: PostSchema['isPublished']
+    isPublished: PostSchema["isPublished"];
   },
 ) => {
   const tagsData = tags

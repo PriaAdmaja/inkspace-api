@@ -7,11 +7,13 @@ export const getPostsList = async ({
   limit,
   page,
   username,
+  search,
 }: {
   prisma: PrismaClient;
   page: number | string;
   limit: number | string;
   username?: string;
+  search?: string;
 }) => {
   const pageInt = isNaN(Number(page)) ? 1 : Number(page);
   const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
@@ -23,6 +25,7 @@ export const getPostsList = async ({
     skip,
     username,
     isPublished: true,
+    search,
   });
 
   const adjustedPostData = posts.map((post) => {
