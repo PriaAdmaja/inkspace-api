@@ -15,8 +15,9 @@ export const getPostsList = async ({
   username?: string;
   search?: string;
 }) => {
-  const pageInt = isNaN(Number(page)) ? 1 : Number(page);
-  const limitInt = isNaN(Number(limit)) ? 10 : Number(limit);
+  const pageInt = isNaN(Number(page)) || Number(page) === 0 ? 1 : Number(page);
+  const limitInt =
+    isNaN(Number(limit)) || Number(limit) === 0 ? 10 : Number(limit);
   const take = limitInt;
   const skip = (pageInt - 1) * take;
 
