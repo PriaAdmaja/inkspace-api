@@ -146,7 +146,16 @@ export const getMePosts = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-  const isPublishedValue = isPublished ? isPublished === "true" : undefined;
+  let isPublishedValue = undefined;
+  switch (isPublished) {
+    case "true":
+      isPublishedValue = true;
+      break;
+    case "false":
+      isPublishedValue = false;
+      break;
+  }
+
   const { data, meta } = await sharedPostsRepository.getUserPosts({
     prisma,
     limit,
