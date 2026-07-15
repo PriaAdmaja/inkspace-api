@@ -27,7 +27,7 @@ export const getAllPosts = async (
       ? {
           OR: [
             { title: { contains: search, mode: "insensitive" as const } },
-            { excerp: { contains: search, mode: "insensitive" as const } },
+            { excerpt: { contains: search, mode: "insensitive" as const } },
             {
               tags: {
                 some: {
@@ -66,14 +66,14 @@ export const createPost = async (
     title,
     content,
     authorId,
-    excerp,
+    excerpt,
     tags,
     isPublished,
   }: {
     title: PostSchema["title"];
     content: PostSchema["content"];
     authorId: string;
-    excerp: string;
+    excerpt: string;
     tags: PostSchema["tags"];
     isPublished: PostSchema["isPublished"];
   },
@@ -124,7 +124,7 @@ export const createPost = async (
       data: {
         title,
         content,
-        excerp,
+        excerpt,
         isPublished,
         author: {
           connect: {
@@ -232,7 +232,7 @@ export const updatePost = async (
       data: {
         title: data.title,
         content: data.content,
-        excerp: data.excerp,
+        excerpt: data.excerpt,
         isPublished: data.isPublished,
       },
       select: {

@@ -48,7 +48,7 @@ model Post {
   id      String @id @default(cuid())
   title   String
   content Json
-  excerp  String
+  excerpt  String
   isPublished  Boolean @default(false)
 
   authorId String

@@ -112,7 +112,7 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     title: body.title,
     content: body.content,
     authorId: userData.id,
-    excerp: body.excerp,
+    excerpt: body.excerpt,
     tags: body.tags,
     isPublished: body.isPublished,
   });
@@ -146,7 +146,7 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
   const post = await postsRepository.updatePost(prisma, id, {
     title: body.title,
     content: body.content,
-    excerp: body.excerp,
+    excerpt: body.excerpt,
     tags: body.tags,
     isPublished: body.isPublished,
   });

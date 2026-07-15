@@ -5,7 +5,7 @@ export const postSelect = {
   id: true,
   title: true,
   content: true,
-  excerp: true,
+  excerpt: true,
   createdAt: true,
   isPublished: true,
   updatedAt: true,
