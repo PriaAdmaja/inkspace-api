@@ -179,3 +179,21 @@ export const publishPost = async (c: Context<ContextWithPrisma>) => {
 
   return ok({ c, message: `Post ${id} is published succesfully`, data: null });
 };
+
+/** Publish Post */
+export const deletePost = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { id } = c.req.param();
+
+  if (!id) {
+    return fail({
+      c,
+      message: "Post ID is required",
+      status: 400,
+    });
+  }
+
+  await postsRepository.deletePost(prisma, id);
+
+  return ok({ c, message: `Post ${id} is deleted succesfully`, data: null });
+};

@@ -24,6 +24,7 @@ postsPrivateRoutes.put(
   postsController.updatePost,
 );
 
+postsPrivateRoutes.delete("/:id", withPrisma, postsController.deletePost);
 postsPrivateRoutes.patch("/:id/publish", withPrisma, postsController.publishPost);
 
 export default { postsPublicRoutes, postsPrivateRoutes };

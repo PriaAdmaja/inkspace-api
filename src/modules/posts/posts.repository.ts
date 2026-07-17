@@ -31,7 +31,9 @@ export const getAllPosts = async (
             {
               tags: {
                 some: {
-                  tag: { name: { contains: search, mode: "insensitive" as const } },
+                  tag: {
+                    name: { contains: search, mode: "insensitive" as const },
+                  },
                 },
               },
             },
@@ -273,6 +275,14 @@ export const publishPost = async (prisma: PrismaClient, id: string) => {
     },
     data: {
       isPublished: true,
+    },
+  });
+};
+
+export const deletePost = async (prisma: PrismaClient, id: string) => {
+  await prisma.post.delete({
+    where: {
+      id,
     },
   });
 };
