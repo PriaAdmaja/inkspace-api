@@ -6,8 +6,8 @@ export const postSelect = {
   title: true,
   content: true,
   excerpt: true,
-  createdAt: true,
   isPublished: true,
+  createdAt: true,
   updatedAt: true,
   author: {
     select: postAuthorSelect,
@@ -22,4 +22,11 @@ export const postSelect = {
       },
     },
   },
+} satisfies Prisma.PostSelect;
+
+export const postSingleSelect = {
+  ...postSelect,
+  seoTitle: true,
+  seoDescription: true,
+  publishedAt: true
 } satisfies Prisma.PostSelect;

@@ -2,7 +2,7 @@ import z from "zod";
 import { PrismaClient, Prisma } from "../../generated/prisma/client.js";
 import { postSchema } from "./posts.schema.js";
 import { generateTagSlug, generateTitleCase } from "../../libs/tags.js";
-import { postSelect } from "../../shared/select/posts.select.js";
+import { postSelect, postSingleSelect } from "../../shared/select/posts.select.js";
 
 export type GetAllPostProps = {
   take?: number;
@@ -190,7 +190,7 @@ export const getPostById = async (prisma: PrismaClient, id: string) => {
     where: {
       id,
     },
-    select: postSelect,
+    select: postSingleSelect,
   });
 
   return post;
@@ -290,7 +290,7 @@ export const updatePost = async (
       where: {
         id,
       },
-      select: postSelect,
+      select: postSingleSelect,
     });
 
     return updatedPost;
