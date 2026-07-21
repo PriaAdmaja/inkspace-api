@@ -50,6 +50,8 @@ model Post {
   content Json
   excerpt  String
   isPublished  Boolean @default(false)
+  seoTitle String?
+  seoDescription  String?
 
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -58,6 +60,7 @@ model Post {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  publishedAt DateTime?
 }
 
 model Tag {

@@ -4,6 +4,15 @@ import { postSchema } from "./posts.schema.js";
 import { generateTagSlug, generateTitleCase } from "../../libs/tags.js";
 import { postSelect } from "../../shared/select/posts.select.js";
 
+export type GetAllPostProps = {
+  take?: number;
+  skip?: number;
+  username?: string;
+  isPublished?: boolean;
+  search?: string;
+  sortBy?: "created" | "updated" | "published";
+};
+
 export const getAllPosts = async (
   prisma: PrismaClient,
   {
@@ -12,13 +21,8 @@ export const getAllPosts = async (
     username,
     isPublished,
     search,
-  }: {
-    take?: number;
-    skip?: number;
-    username?: string;
-    isPublished?: boolean;
-    search?: string;
-  },
+    sortBy,
+  }: GetAllPostProps,
 ) => {
   const where: Prisma.PostWhereInput = {
     ...(username ? { author: { username } } : {}),
@@ -42,13 +46,28 @@ export const getAllPosts = async (
       : {}),
   };
 
+  const orderBy: Record<string, string> = {};
+  switch (sortBy) {
+    case "created":
+      orderBy.createdAt = "desc";
+      break;
+    case "updated":
+      orderBy.updatedAt = "desc";
+      break;
+    case "published":
+      orderBy.publishedAt = "desc";
+      break;
+
+    default:
+      orderBy.createdAt = "desc";
+      break;
+  }
+
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
       where,
       select: postSelect,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
       take,
       skip,
     }),
@@ -71,6 +90,8 @@ export const createPost = async (
     excerpt,
     tags,
     isPublished,
+    seoDescription,
+    seoTitle,
   }: {
     title: PostSchema["title"];
     content: PostSchema["content"];
@@ -78,6 +99,8 @@ export const createPost = async (
     excerpt: string;
     tags: PostSchema["tags"];
     isPublished: PostSchema["isPublished"];
+    seoTitle: PostSchema["seoTitle"];
+    seoDescription: PostSchema["seoDescription"];
   },
 ) => {
   const tagsData = tags
@@ -128,6 +151,9 @@ export const createPost = async (
         content,
         excerpt,
         isPublished,
+        seoDescription,
+        seoTitle,
+        publishedAt: isPublished ? new Date() : undefined,
         author: {
           connect: {
             id: authorId,
@@ -188,7 +214,7 @@ export const updatePost = async (
     // Check if post exists before attempting update
     const postExists = await tx.post.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, isPublished: true },
     });
 
     if (!postExists) {
@@ -227,6 +253,8 @@ export const updatePost = async (
       },
     });
 
+    const isPublish =
+      postExists.isPublished === false && data.isPublished === true;
     await tx.post.update({
       where: {
         id,
@@ -236,6 +264,9 @@ export const updatePost = async (
         content: data.content,
         excerpt: data.excerpt,
         isPublished: data.isPublished,
+        seoTitle: data.seoTitle,
+        seoDescription: data.seoDescription,
+        publishedAt: isPublish ? new Date() : undefined,
       },
       select: {
         id: true,
@@ -275,6 +306,7 @@ export const publishPost = async (prisma: PrismaClient, id: string) => {
     },
     data: {
       isPublished: true,
+      publishedAt: new Date(),
     },
   });
 };

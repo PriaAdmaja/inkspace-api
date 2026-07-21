@@ -5,5 +5,7 @@ export const postSchema = z.object({
   content: z.record(z.string(), z.any()),
   excerpt: z.string(),
   tags: z.array(z.string()).optional(),
-  isPublished: z.boolean().optional()
+  isPublished: z.boolean().optional(),
+  seoTitle: z.string().min(1, "seoTitle is required"),
+  seoDescription: z.string().min(1, "seoDescription is required"),
 });

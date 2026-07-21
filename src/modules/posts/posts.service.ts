@@ -8,12 +8,14 @@ export const getPostsList = async ({
   page,
   username,
   search,
+  sortBy,
 }: {
   prisma: PrismaClient;
   page: number | string;
   limit: number | string;
   username?: string;
   search?: string;
+  sortBy?: postsRepository.GetAllPostProps["sortBy"];
 }) => {
   const pageInt = isNaN(Number(page)) || Number(page) === 0 ? 1 : Number(page);
   const limitInt =
@@ -27,6 +29,7 @@ export const getPostsList = async ({
     username,
     isPublished: true,
     search,
+    sortBy
   });
 
   const adjustedPostData = posts.map((post) => {

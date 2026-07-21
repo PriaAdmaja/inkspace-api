@@ -18,7 +18,8 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
     limit,
     page,
     prisma,
-    search
+    search,
+    sortBy: 'published'
   });
 
   return ok({
@@ -45,7 +46,7 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
     limit,
     username,
     page,
-    prisma,
+    prisma
   });
 
   return ok({
@@ -112,9 +113,12 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
     title: body.title,
     content: body.content,
     authorId: userData.id,
-    excerpt: body.excerpt ?? '',
+    excerpt: body.excerpt ?? "",
     tags: body.tags,
     isPublished: body.isPublished,
+    seoTitle: body.seoTitle,
+    seoDescription: body.seoDescription
+
   });
 
   if (!post) {
@@ -146,9 +150,11 @@ export const updatePost = async (c: Context<ContextWithPrisma>) => {
   const post = await postsRepository.updatePost(prisma, id, {
     title: body.title,
     content: body.content,
-    excerpt: body.excerpt ?? '',
+    excerpt: body.excerpt ?? "",
     tags: body.tags,
     isPublished: body.isPublished,
+    seoTitle: body.seoTitle,
+    seoDescription: body.seoDescription,
   });
 
   if (!post) {
