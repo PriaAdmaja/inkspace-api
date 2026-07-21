@@ -8,7 +8,6 @@ export const getPostsList = async ({
   page,
   username,
   search,
-  sortBy,
 }: {
   prisma: PrismaClient;
   page: number | string;
@@ -29,7 +28,7 @@ export const getPostsList = async ({
     username,
     isPublished: true,
     search,
-    sortBy
+    sortBy: 'published'
   });
 
   const adjustedPostData = posts.map((post) => {

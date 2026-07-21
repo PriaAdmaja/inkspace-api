@@ -19,7 +19,6 @@ export const getAllPosts = async (c: Context<ContextWithPrisma>) => {
     page,
     prisma,
     search,
-    sortBy: 'published'
   });
 
   return ok({

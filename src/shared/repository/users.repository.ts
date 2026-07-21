@@ -34,13 +34,23 @@ export const getUserPosts = async (
     ...(typeof isPublished !== "undefined" ? { isPublished } : {}),
   };
 
+  const orderBy: Record<string, string> = {};
+
+  switch (isPublished) {
+    case true:
+      orderBy.publishedAt = "desc";
+      break;
+    case false:
+      orderBy.createdAt = "desc";
+
+      break;
+  }
+
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
       where,
       select: postSelect,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
       take,
       skip,
     }),
