@@ -13,6 +13,7 @@ export const register = async (
       email: data.email,
       username: data.username,
       password: data.password,
+      name: data.name
     },
   });
   return user;
