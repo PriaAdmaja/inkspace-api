@@ -126,7 +126,10 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
     return fail({
       c,
       message: "Current password is incorrect",
-      status: 401,
+      status: 400,
+      error: [
+        { field: "currentPassword", message: "Current password is incorrect" },
+      ],
     });
   }
 
