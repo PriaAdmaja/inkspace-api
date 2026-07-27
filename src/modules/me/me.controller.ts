@@ -118,8 +118,11 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
       status: 400,
     });
   }
-
-  if (!compareHash(body.currentPassword, user.password)) {
+  const isPasswordMatch = await compareHash(
+    body.currentPassword,
+    user.password,
+  );
+  if (!isPasswordMatch) {
     return fail({
       c,
       message: "Current password is incorrect",

@@ -74,8 +74,9 @@ export const login = async (c: Context<ContextWithPrisma>) => {
 
   // Check password is correct or not
   const isPasswordValid = userData.password
-    ? compareHash(body.password, userData.password)
+    ? await compareHash(body.password, userData.password)
     : true; // If password is null, it means the user logged in with OAuth, so we can skip password check
+
   if (!isPasswordValid) {
     return fail({
       c,
