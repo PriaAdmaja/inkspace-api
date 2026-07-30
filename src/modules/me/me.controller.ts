@@ -8,6 +8,7 @@ import z from "zod";
 import * as meSchema from "./me.schema.js";
 import { deleteImage, imageUploader } from "../../libs/images.js";
 import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
+import { passwordStrength } from "../../libs/password-strength-checker.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
@@ -129,6 +130,23 @@ export const updatePassword = async (c: Context<ContextWithPrisma>) => {
       status: 400,
       error: [
         { field: "currentPassword", message: "Current password is incorrect" },
+      ],
+    });
+  }
+
+  const passwordStrengthResult = passwordStrength(body.newPassword);
+  if (passwordStrengthResult.score < 5) {
+    return fail({
+      c,
+      message:
+        "Password is not strong enough, it should be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and symbols.",
+      status: 400,
+      error: [
+        {
+          field: "newPassword",
+          message:
+            "Password is not strong enough, it should be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and symbols.",
+        },
       ],
     });
   }
