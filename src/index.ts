@@ -10,6 +10,8 @@ import { env } from "./configs/env.js";
 
 const app = new Hono<ContextWithPrisma>();
 
+console.log("NODE_ENV =", JSON.stringify(process.env.NODE_ENV));
+
 app.use(prettyJSON());
 app.use(
   "/*",
