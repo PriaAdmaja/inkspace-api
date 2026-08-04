@@ -6,9 +6,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "debug-env": "node -e \"console.log(process.env.NODE_ENV)\"",
     "prisma:generate": "prisma generate",
     "prisma:migrate-dev": "prisma migrate dev",
-    "postinstall": "bun run prisma:generate",
+    "postinstall": "bun run debug-env && prisma:generate",
     "test": "vitest"
   },
   "dependencies": {
