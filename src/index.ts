@@ -6,6 +6,7 @@ import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import { csrf } from "hono/csrf";
 import { allowedOrigin } from "./libs/constans.js";
+import { env } from "./configs/env.js";
 
 const app = new Hono<ContextWithPrisma>();
 
@@ -19,7 +20,7 @@ app.use(
   }),
 );
 
-if (process.env.NODE_ENV === "production") {
+if (env.NODE_ENV === "production") {
   app.use(
     "*",
     csrf({
@@ -33,7 +34,7 @@ app.route("/", routes);
 serve(
   {
     fetch: app.fetch,
-    port: 3001,
+    port: env.PORT,
   },
   (info) => {
     // eslint-disable-next-line no-console

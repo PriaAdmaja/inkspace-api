@@ -5,7 +5,7 @@ import * as usersSchema from "./users.schema.js";
 import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
 import z from "zod";
-import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
+import { generateUserResponse } from "../../shared/mapper/users.mapper.js";
 
 export const checkingUsername = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");

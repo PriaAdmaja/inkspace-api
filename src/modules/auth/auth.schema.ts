@@ -1,8 +1,9 @@
 import z from "zod";
+import { usernameSchema } from "../../shared/schemas/users.schema.js";
 
 export const registerSchema = z.object({
   email: z.email(),
-  username: z.string(),
+  username: usernameSchema,
   name: z.string(),
   password: z.string(),
 });
@@ -24,4 +25,8 @@ export const regenerateAccessTokenSchema = z.object({
 
 export const logoutSchema = z.object({
   refreshToken: z.string(),
+});
+
+export const verifyEmailSchema = z.object({
+  token: z.string(),
 });

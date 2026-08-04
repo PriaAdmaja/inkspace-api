@@ -5,8 +5,9 @@ import postsRoutes from "../modules/posts/posts.routes.js";
 import { jwt } from "hono/jwt";
 import { JWT_ALGORITHM } from "../libs/token.js";
 import { tokenDecoder } from "../middlewares/token-decoder.js";
+import { env } from "../configs/env.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default-secret"
+const JWT_SECRET = env.JWT_SECRET
 
 const privateRoutes = new Hono<ContextWithPrisma>();
 

@@ -7,7 +7,7 @@ import * as sharedPostsRepository from "../../shared/services/posts.services.js"
 import z from "zod";
 import * as meSchema from "./me.schema.js";
 import { deleteImage, imageUploader } from "../../libs/images.js";
-import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
+import { generateUserResponse } from "../../shared/mapper/users.mapper.js";
 import { passwordStrength } from "../../libs/password-strength-checker.js";
 
 export const getMe = async (c: Context<ContextWithPrisma>) => {
@@ -100,7 +100,7 @@ export const updateMe = async (c: Context<ContextWithPrisma>) => {
   const email = userData.email;
   const updateMe = await meRepository.updateMe(prisma, email, data);
 
-  return ok({ c, data: generateUserResponse(updateMe) });
+  return ok({ c, data: generateUserResponse(updateMe, true) });
 };
 
 export const updatePassword = async (c: Context<ContextWithPrisma>) => {

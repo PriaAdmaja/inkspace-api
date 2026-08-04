@@ -3,23 +3,43 @@ import { PrismaClient } from "../../generated/prisma/client.js";
 import * as authSchema from "./auth.schema.js";
 import { hash } from "../../libs/hash.js";
 import { sha256 } from "../../libs/crypto.js";
+import { generateEmailVerificationToken } from "../../libs/token.js";
+
+const verificationTokenResendTime = 5 * 60 * 1000; // 5 minutes
 
 export const register = async (
   prisma: PrismaClient,
   data: z.infer<typeof authSchema.registerSchema>,
 ) => {
-  const user = await prisma.user.create({
-    data: {
-      email: data.email,
-      username: data.username,
-      password: data.password,
-      name: data.name
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        name: data.name,
+      },
+    });
+
+    const verificationToken = await generateEmailVerificationToken(
+      user.id,
+      user.email,
+      user.username,
+    );
+
+    const resendTime = Date.now() + verificationTokenResendTime;
+    await tx.verificationToken.create({
+      data: {
+        userId: user.id,
+        token: verificationToken,
+        allowToResend: new Date(resendTime),
+      },
+    });
+
+    return { user, verificationToken };
   });
-  return user;
+  return result;
 };
-
-
 
 export const saveRefreshToken = async (
   prisma: PrismaClient,
@@ -53,7 +73,7 @@ export const getRefreshToken = async (prisma: PrismaClient, token: string) => {
       user: {
         select: {
           email: true,
-          username: true
+          username: true,
         },
       },
       expiresAt: true,
@@ -84,4 +104,59 @@ export const clearUnusedToken = async (prisma: PrismaClient) => {
       OR: [{ revoked: true }, { createdAt: { lt: new Date() } }],
     },
   });
+};
+
+export const getUserVerificationToken = async (
+  prisma: PrismaClient,
+  userId: string,
+) => {
+  const tokenData = await prisma.verificationToken.findFirst({
+    where: {
+      userId,
+    },
+  });
+  return tokenData;
+};
+
+export const updateUserVerificationToken = async (
+  prisma: PrismaClient,
+  userId: string,
+  newToken: string,
+) => {
+  const resendTime = Date.now() + verificationTokenResendTime;
+  await prisma.verificationToken.update({
+    where: {
+      userId,
+    },
+    data: {
+      token: newToken,
+      allowToResend: new Date(resendTime),
+    },
+  });
+};
+
+export const deleteUserVerificationToken = async (
+  prisma: PrismaClient,
+  tokenId: string,
+) => {
+  const updatedUserData = await prisma.$transaction(async (tx) => {
+    const token = await tx.verificationToken.delete({
+      where: {
+        id: tokenId,
+      },
+    });
+
+    const user = await tx.user.update({
+      where: {
+        id: token.userId,
+      },
+      data: {
+        emailVerified: new Date(),
+      },
+    });
+
+    return user;
+  });
+
+  return updatedUserData;
 };

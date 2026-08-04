@@ -2,14 +2,20 @@ import { Context } from "hono";
 import { ContextWithPrisma } from "../../types/app.js";
 import * as authSchema from "./auth.schema.js";
 import * as authRepository from "./auth.repository.js";
- import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
+import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
+import * as authService from "./auth.service.js";
 import z from "zod";
 import { fail, ok } from "../../libs/response.js";
 import { passwordStrength } from "../../libs/password-strength-checker.js";
 import { compareHash, hash } from "../../libs/hash.js";
-import { generateAccessToken, generateRefreshToken } from "../../libs/token.js";
+import {
+  generateAccessToken,
+  generateEmailVerificationToken,
+  generateRefreshToken,
+} from "../../libs/token.js";
 import { getCookie, setCookie } from "hono/cookie";
-import { generateUserResponse } from "../../shared/mapper/users,mapper.js";
+import { generateUserResponse } from "../../shared/mapper/users.mapper.js";
+import { Jwt } from "hono/utils/jwt";
 
 /** REGISTER */
 export const register = async (c: Context<ContextWithPrisma>) => {
@@ -28,7 +34,10 @@ export const register = async (c: Context<ContextWithPrisma>) => {
   }
 
   // Check if user already exists
-  const isEmailExists = await sharedUsersRepository.findEmail(prisma, body.email);
+  const isEmailExists = await sharedUsersRepository.findEmail(
+    prisma,
+    body.email,
+  );
   if (isEmailExists !== null) {
     return fail({
       c,
@@ -37,7 +46,7 @@ export const register = async (c: Context<ContextWithPrisma>) => {
     });
   }
 
-   const isUsernameExists = await sharedUsersRepository.findUsername(
+  const isUsernameExists = await sharedUsersRepository.findUsername(
     prisma,
     body.username,
   );
@@ -51,9 +60,14 @@ export const register = async (c: Context<ContextWithPrisma>) => {
 
   // Hash the password before saving the user
   const data = { ...body, password: hash(body.password) };
-  const newUser = await authRepository.register(prisma, data);
+  const { user, verificationToken } = await authRepository.register(
+    prisma,
+    data,
+  );
 
-  return ok({ c, data: generateUserResponse(newUser) });
+  authService.verificationSender(user.email, verificationToken);
+
+  return ok({ c, data: generateUserResponse(user, true) });
 };
 
 /** LOGIN */
@@ -98,7 +112,11 @@ export const login = async (c: Context<ContextWithPrisma>) => {
 
   await authRepository.saveRefreshToken(prisma, authData);
 
-  const accessToken = await generateAccessToken(userData.id, userData.email, userData.username);
+  const accessToken = await generateAccessToken(
+    userData.id,
+    userData.email,
+    userData.username,
+  );
 
   setCookie(c, "refreshToken", refreshToken, {
     httpOnly: true,
@@ -111,7 +129,7 @@ export const login = async (c: Context<ContextWithPrisma>) => {
     c,
     data: {
       accessToken,
-      user: generateUserResponse(userData),
+      user: generateUserResponse(userData, true),
     },
   });
 };
@@ -175,7 +193,7 @@ export const getAccessToken = async (c: Context<ContextWithPrisma>) => {
   const accessToken = await generateAccessToken(
     storedTokenData.userId,
     storedTokenData.user.email,
-    storedTokenData.user.username
+    storedTokenData.user.username,
   );
 
   return ok({
@@ -214,4 +232,103 @@ export const logout = async (c: Context<ContextWithPrisma>) => {
   await authRepository.revokeRefreshToken(prisma, storedTokenData.id);
 
   return ok({ c, data: null });
+};
+
+export const verifyEmail = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { token } =
+    await c.req.json<z.infer<typeof authSchema.verifyEmailSchema>>();
+
+  const { payload } = Jwt.decode(token);
+
+  if (!payload || !payload.sub) {
+    return fail({
+      c,
+      message: "Invalid verification token",
+      status: 400,
+    });
+  }
+
+  if (!payload.exp || payload.exp * 1000 < Date.now()) {
+    return fail({
+      c,
+      message: "Verification token has expired",
+      status: 400,
+    });
+  }
+
+  const verificationToken = await authRepository.getUserVerificationToken(
+    prisma,
+    payload.sub as string,
+  );
+
+  const isTokenValid = verificationToken && verificationToken.token === token;
+
+  if (!isTokenValid) {
+    return fail({
+      c,
+      message: "Invalid verification token",
+      status: 400,
+    });
+  }
+
+  const user = await authRepository.deleteUserVerificationToken(
+    prisma,
+    verificationToken.id,
+  );
+
+  return ok({
+    c,
+    data: generateUserResponse(user, true),
+    message: "Email verified successfully",
+  });
+};
+
+export const resendVerificationEmail = async (
+  c: Context<ContextWithPrisma>,
+) => {
+  const prisma = c.get("prisma");
+  const { email } = c.get("userData") || { email: "" };
+
+  const user = await sharedUsersRepository.findEmail(prisma, email);
+  if (!user) {
+    return fail({
+      c,
+      message: "User not found",
+      status: 404,
+    });
+  }
+
+  const verificationToken = await authRepository.getUserVerificationToken(
+    prisma,
+    user.id,
+  );
+
+  if (
+    verificationToken?.allowToResend &&
+    verificationToken.allowToResend.getTime() > Date.now()
+  ) {
+    return fail({
+      c,
+      message:
+        "You can only resend the verification email once every 5 minutes.",
+      status: 429,
+    });
+  }
+
+  const newToken = await generateEmailVerificationToken(
+    user.id,
+    user.email,
+    user.username,
+  );
+
+  await authRepository.updateUserVerificationToken(prisma, user.id, newToken);
+
+  await authService.verificationSender(user.email, newToken);
+
+  return ok({
+    c,
+    message: "Verification email resent successfully",
+    data: null,
+  });
 };

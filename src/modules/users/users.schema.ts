@@ -1,5 +1,6 @@
 import z from "zod";
+import { usernameSchema } from "../../shared/schemas/users.schema.js";
 
 export const checkingUsernameSchema = z.object({
-  username: z.string().min(5, 'Username must have 5 characters.'),
+  username: usernameSchema,
 });
