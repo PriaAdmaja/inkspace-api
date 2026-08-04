@@ -1,5 +1,6 @@
 import { PrismaClient } from "../../generated/prisma/client.js";
 import { postSelect } from "../select/posts.select.js";
+import { userSelect } from "../select/users.select.js";
 import { PostReturned } from "../types/posts.type.js";
 
 export const findUsername = async (prisma: PrismaClient, username: string) => {
@@ -7,6 +8,7 @@ export const findUsername = async (prisma: PrismaClient, username: string) => {
     where: {
       username,
     },
+     select: userSelect,
   });
   return user;
 };
@@ -16,6 +18,7 @@ export const findEmail = async (prisma: PrismaClient, email: string) => {
     where: {
       email,
     },
+    select: userSelect,
   });
   return user;
 };

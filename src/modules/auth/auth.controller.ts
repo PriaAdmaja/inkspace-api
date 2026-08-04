@@ -322,13 +322,42 @@ export const resendVerificationEmail = async (
     user.username,
   );
 
-  await authRepository.updateUserVerificationToken(prisma, user.id, newToken);
+  authService.verificationSender(user.email, newToken);
 
-  await authService.verificationSender(user.email, newToken);
+  const data = await authRepository.updateUserVerificationToken(
+    prisma,
+    user.id,
+    newToken,
+  );
 
   return ok({
     c,
     message: "Verification email resent successfully",
-    data: null,
+    data,
+  });
+};
+
+export const getResendAvailability = async (c: Context<ContextWithPrisma>) => {
+  const prisma = c.get("prisma");
+  const { id } = c.get("userData") || { id: "" };
+
+  const verificationToken = await authRepository.getUserVerificationToken(
+    prisma,
+    id,
+  );
+
+  if (!verificationToken) {
+    return fail({
+      c,
+      message: "No verification token found for the user",
+      status: 404,
+    });
+  }
+
+  return ok({
+    c,
+    data: {
+      availableToResend: new Date(verificationToken.allowToResend).getTime(),
+    },
   });
 };

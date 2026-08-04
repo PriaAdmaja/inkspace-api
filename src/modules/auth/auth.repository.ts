@@ -124,7 +124,7 @@ export const updateUserVerificationToken = async (
   newToken: string,
 ) => {
   const resendTime = Date.now() + verificationTokenResendTime;
-  await prisma.verificationToken.update({
+  const data = await prisma.verificationToken.update({
     where: {
       userId,
     },
@@ -132,7 +132,12 @@ export const updateUserVerificationToken = async (
       token: newToken,
       allowToResend: new Date(resendTime),
     },
+    select: {
+      allowToResend: true,
+    },
   });
+  
+  return data;
 };
 
 export const deleteUserVerificationToken = async (

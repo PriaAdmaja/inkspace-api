@@ -8,18 +8,39 @@ import * as authSchema from "./auth.schema.js";
 const authRoutes = new Hono();
 const publicAuthRoutes = new Hono();
 const privateAuthRoutes = new Hono();
-privateAuthRoutes.use(
-  "*",
-  tokenDecoder,
+privateAuthRoutes.use("*", tokenDecoder);
+
+publicAuthRoutes.post(
+  "/login",
+  withPrisma,
+  zValidator(authSchema.loginSchema),
+  authController.login,
+);
+publicAuthRoutes.post(
+  "/register",
+  withPrisma,
+  zValidator(authSchema.registerSchema),
+  authController.register,
+);
+publicAuthRoutes.post("/refresh", withPrisma, authController.getAccessToken);
+publicAuthRoutes.post(
+  "/verify-email",
+  withPrisma,
+  zValidator(authSchema.verifyEmailSchema),
+  authController.verifyEmail,
 );
 
-publicAuthRoutes.post("/login", withPrisma, zValidator(authSchema.loginSchema), authController.login);
-publicAuthRoutes.post("/register", withPrisma, zValidator(authSchema.registerSchema), authController.register);
-publicAuthRoutes.post("/refresh", withPrisma, authController.getAccessToken);
-publicAuthRoutes.post("/verify-email", withPrisma, zValidator(authSchema.verifyEmailSchema), authController.verifyEmail);
-
-privateAuthRoutes.post("/logout", withPrisma,  authController.logout);
-privateAuthRoutes.post("/resend-verification-email", withPrisma, authController.resendVerificationEmail);
+privateAuthRoutes.post("/logout", withPrisma, authController.logout);
+privateAuthRoutes.post(
+  "/resend-verification-email",
+  withPrisma,
+  authController.resendVerificationEmail,
+);
+privateAuthRoutes.get(
+  "/resend-availability",
+  withPrisma,
+  authController.getResendAvailability,
+);
 
 authRoutes.route("/", publicAuthRoutes);
 authRoutes.route("/", privateAuthRoutes);
