@@ -2,7 +2,9 @@ import { env } from "../../configs/env.js";
 import emailTransporter from "../../configs/nodemailer.js";
 
 export const verificationSender = async(email: string, token: string) => {
-  const verificationLink = `${env.FRONTEND_URL}/verify-email?token=${token}`;
+  const frontendUrl = env.FRONTEND_URL
+  const confertedFrontendUrl = frontendUrl.endsWith("/") ? frontendUrl.slice(0, -1) : frontendUrl;
+  const verificationLink = `${confertedFrontendUrl}/verify-email?token=${token}`;
 
   try {
     await emailTransporter.sendMail({
