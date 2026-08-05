@@ -65,7 +65,11 @@ export const register = async (c: Context<ContextWithPrisma>) => {
     data,
   );
 
-  authService.verificationSender(user.email, verificationToken);
+  authService.verificationSender({
+    email: user.email,
+    token: verificationToken,
+    name: user.name,
+  });
 
   return ok({ c, data: generateUserResponse(user, true) });
 };
@@ -322,7 +326,11 @@ export const resendVerificationEmail = async (
     user.username,
   );
 
-  authService.verificationSender(user.email, newToken);
+  await authService.verificationSender({
+    email: user.email,
+    token: newToken,
+    name: user.name,
+  });
 
   const data = await authRepository.updateUserVerificationToken(
     prisma,
