@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client.js";
+import { Prisma, PrismaClient } from "../generated/prisma/client.js";
 
 export type UserData = {
   id: string;
@@ -10,6 +10,7 @@ export type ContextWithPrisma = {
   Variables: {
     prisma: PrismaClient;
     userData?: UserData;
+    userDB?: Prisma.UserGetPayload<true>;
   };
   Bindings: {
     DATABASE_URL: string;

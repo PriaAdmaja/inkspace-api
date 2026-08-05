@@ -3,6 +3,7 @@ import * as postsController from "./posts.controller.js";
 import { Hono } from "hono";
 import { postSchema } from "./posts.schema.js";
 import { zValidator } from "../../libs/validator.js";
+import { userValidator } from "../../middlewares/user-validator.js";
 
 const postsPublicRoutes = new Hono();
 const postsPrivateRoutes = new Hono();
@@ -14,6 +15,7 @@ postsPrivateRoutes.post(
   "/create",
   withPrisma,
   zValidator(postSchema),
+  userValidator,
   postsController.createPost,
 );
 
@@ -25,6 +27,10 @@ postsPrivateRoutes.put(
 );
 
 postsPrivateRoutes.delete("/:id", withPrisma, postsController.deletePost);
-postsPrivateRoutes.patch("/:id/publish", withPrisma, postsController.publishPost);
+postsPrivateRoutes.patch(
+  "/:id/publish",
+  withPrisma,
+  postsController.publishPost,
+);
 
 export default { postsPublicRoutes, postsPrivateRoutes };

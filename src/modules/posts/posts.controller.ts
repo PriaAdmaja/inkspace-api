@@ -1,6 +1,5 @@
 import * as postsRepository from "./posts.repository.js";
 import * as postsService from "./posts.service.js";
-import * as sharedUsersRepository from "../../shared/repository/users.repository.js";
 import { ContextWithPrisma } from "../../types/app.js";
 import { fail, ok } from "../../libs/response.js";
 import z from "zod";
@@ -45,7 +44,7 @@ export const getUserPosts = async (c: Context<ContextWithPrisma>) => {
     limit,
     username,
     page,
-    prisma
+    prisma,
   });
 
   return ok({
@@ -86,23 +85,13 @@ export const getPostById = async (c: Context<ContextWithPrisma>) => {
 
 export const createPost = async (c: Context<ContextWithPrisma>) => {
   const prisma = c.get("prisma");
-  const { username } = c.get("userData") || { id: undefined };
+  const user = c.get("userDB");
 
-  if (!username) {
+  if (!user) {
     return fail({
       c,
       message: "User not found",
-      status: 401,
-    });
-  }
-
-  const userData = await sharedUsersRepository.findUsername(prisma, username);
-
-  if (!userData) {
-    return fail({
-      c,
-      message: "User not found",
-      status: 401,
+      status: 404,
     });
   }
 
@@ -111,13 +100,12 @@ export const createPost = async (c: Context<ContextWithPrisma>) => {
   const post = await postsRepository.createPost(prisma, {
     title: body.title,
     content: body.content,
-    authorId: userData.id,
+    authorId: user.id,
     excerpt: body.excerpt ?? "",
     tags: body.tags,
     isPublished: body.isPublished,
     seoTitle: body.seoTitle,
-    seoDescription: body.seoDescription
-
+    seoDescription: body.seoDescription,
   });
 
   if (!post) {
