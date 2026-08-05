@@ -22,7 +22,6 @@ export const verificationSender = async ({
       to: email,
       subject: "Inkspace Email Verification",
       html: htmlContent({ name, verificationLink }),
-      amp: ampContent({ name, verificationLink }),
     });
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -38,26 +37,7 @@ const htmlContent = ({
   verificationLink: string;
 }) => {
   return `
-      <p>Hi ${name || "there"}!</p>
-      <p>You've successfully set up an account with Inkspace. To complete your registration, we just need to verify your email address. Please click the link below:</p>
-      <a href="${verificationLink}" target="_blank">Verify Email</a>
-      <p>Or copy and paste this URL into your browser address bar: <a href="${verificationLink}" target="_blank">${verificationLink}</a></p>
-      <p>Regards,</p>
-      <p>Inkspace Team</p>
-    `;
-};
-
-const ampContent = ({
-  name,
-  verificationLink,
-}: {
-  name?: string | null;
-  verificationLink: string;
-}) => {
-  return `<!doctype html>
-<html>
-  <body>
-    <div
+     <div
       style='background-color:#F2F5F7;color:#242424;font-family:"Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;font-size:16px;font-weight:400;letter-spacing:0.15008px;line-height:1.5;margin:0;padding:32px 0;min-height:100%;width:100%'
     >
       <table
@@ -118,6 +98,5 @@ const ampContent = ({
         </tbody>
       </table>
     </div>
-  </body>
-</html>`;
+    `;
 };
