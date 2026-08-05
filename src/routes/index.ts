@@ -8,8 +8,12 @@ import privateRoutes from "./private.route.js";
 import { ContextWithPrisma } from "../types/app.js";
 import publicRoutes from "./public.route.js";
 import authRoutes from "../modules/auth/auth.routes.js";
+import { globalRateLimiter } from "../middlewares/rate-limit.js";
 
 const routes = new Hono<ContextWithPrisma>();
+
+routes.use(globalRateLimiter);
+
 routes.route("/api/public", publicRoutes);
 routes.route("/api/auth", authRoutes);
 routes.route("/api", privateRoutes);

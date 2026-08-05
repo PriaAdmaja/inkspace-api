@@ -4,8 +4,12 @@ import { withPrisma } from "../../middlewares/prisma.js";
 import { tokenDecoder } from "../../middlewares/token-decoder.js";
 import { zValidator } from "../../libs/validator.js";
 import * as authSchema from "./auth.schema.js";
+import { authRateLimiter } from "../../middlewares/rate-limit.js";
 
 const authRoutes = new Hono();
+
+authRoutes.use(authRateLimiter);
+
 const publicAuthRoutes = new Hono();
 const privateAuthRoutes = new Hono();
 privateAuthRoutes.use("*", tokenDecoder);
